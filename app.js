@@ -24,6 +24,6 @@ app.delete('/user', (req, res) => {
     res.send('Got a DELETE request at /user');
 });
 
-app.listen(port, () => { // 'list'를 'listen'으로 수정
+app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
