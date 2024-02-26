@@ -1,7 +1,7 @@
 require('dotenv').config({ path : './.env.dev'})
-const { Client } = require('pg')
+const { Pool } = require('pg')
 
-const client = new Client({
+const pool = new Pool({
     user: process.env.DBUSER,
     host: 'localhost',
     database: process.env.DBNAME,
@@ -9,7 +9,7 @@ const client = new Client({
     port: 5432,
 })
 
-client.connect(error => {
+pool.connect(error => {
   if (error) {
     console.error('Database connection error', error.stack);
   } else {
@@ -17,4 +17,4 @@ client.connect(error => {
   }
 });
 
-module.exports = client;
+module.exports = pool;
