@@ -2,7 +2,6 @@ const express = require('express');
 const app = express();
 const port = 3000;
 const bodyParser = require('body-parser');
-const db = require('./dbConnection');
 const userRouters = require('./controller/users');
 
 app.use(bodyParser.urlencoded({ extended: true })); // 'urlcoded'를 'urlencoded'로 수정
