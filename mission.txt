@@ -1,0 +1,9 @@
+1. 모든 응답에 x-inho-api: 1.0.0 헤더 붙이기 ( POST 미들웨어 )
+   * 모든 요청이 지나가는 곳
+   * PRE 미들웨어 req.util = {}
+   * ERROR HANDLER 
+   * PRE, POST, ERROR ( expressjs (app.use 최후순위 (4)개 )) 
+   * error handler: 미들웨어인데 모든 에러가 거쳐감.
+     - 에러 처리
+2. `pg` client -> `pool` 커넥션풀 사용하도록 수정
+3. 
