@@ -20,8 +20,20 @@ router.post('/', async (req, res) => {
 
 
 // todo_list 완료하기
-router.patch('/', async (req, res) => {
+router.patch('/:id', async (req, res) => {
+	try {
+		const { id } = req.params;
 
+		const result = await pool.query(
+			'UPDATE todo_list SET	is_completed = TRUE WHERE id = $1 RETURNING *',
+			[id]
+		);
+
+		res.json(result.rows[0])
+	} catch (e) {
+		console.log('todo.js patch Error Message :', e)
+		res.status(400).json({ error: e.message })
+	}
 })
 
 // todo_list 전체 가져오기
