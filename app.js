@@ -4,11 +4,28 @@ const port = 3000;
 const bodyParser = require('body-parser');
 const userRouters = require('./controller/users');
 const todoRouters = require('./controller/todo')
+const authRouter = require('./controller/kakao-auth')
+const session = require('express-session')
+const { passport } = require('./controller/auth-middleware')
+require('dotenv').config();
 
 app.use(bodyParser.urlencoded({ extended: true })); // 'urlcoded'를 'urlencoded'로 수정
 app.use(bodyParser.json());
+
+app.use(session({
+    secret: '비밀키', // 'secret' 옵션으로 수정
+    resave: false,
+    saveUninitialized: false,
+}))
+
+// passport 초기화 및 세션 사용 설정 추가
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use('/api/users', userRouters);
 app.use('/api/todo', todoRouters);
+app.use('/api/kakao', authRouter)
+
 app.use((req, res, next) => {
     res.setHeader('x-inho-api', '1.0.0');
     next();
