@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
-const authticateToken = require('./auth-middleware');
+const { authticateToken } = require('./auth-middleware');
 const pool = require("../dbConnection");
 
 //! 사용자 계정 생성하기
