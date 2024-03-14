@@ -4,7 +4,7 @@ const KakaoStrategy = require('passport-kakao').Strategy;
 
 passport.use(new KakaoStrategy({
 	clientID: process.env.KAKAO_CLIENT_ID, // 오타 수정: cilentID -> clientID
-	callbackURL: "http://localhost:3000/auth/kakao/callback",
+	callbackURL: process.env.KAKAO_CALL_BACK_URL,
 },
 	function (accessToken, refreshToken, profile, done) {
 		return done(null, profile)
