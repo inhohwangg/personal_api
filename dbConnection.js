@@ -3,7 +3,7 @@ const { Pool } = require('pg')
 
 const pool = new Pool({
     user: process.env.DBUSER,
-    host: 'localhost',
+    host: process.env.HOST,
     database: process.env.DBNAME,
     password: process.env.DBPASSWORD,
     port: 5432,
@@ -11,7 +11,7 @@ const pool = new Pool({
 
 pool.connect(error => {
   if (error) {
-    console.error('Database connection error', error.stack);
+    console.error('Database connection error', error);
   } else {
     console.log('Database connected successfully');
   }
