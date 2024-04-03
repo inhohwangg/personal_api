@@ -12,11 +12,11 @@ require('dotenv').config();
 app.use(bodyParser.urlencoded({ extended: true })); // 'urlcoded'를 'urlencoded'로 수정
 app.use(bodyParser.json());
 
-app.use(session({
-    secret: '비밀키', // 'secret' 옵션으로 수정
-    resave: false,
-    saveUninitialized: false,
-}))
+// app.use(session({
+//     secret: '비밀키', // 'secret' 옵션으로 수정
+//     resave: false,
+//     saveUninitialized: false,
+// }))
 
 // passport 초기화 및 세션 사용 설정 추가
 app.use(passport.initialize());
