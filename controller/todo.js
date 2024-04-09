@@ -23,13 +23,15 @@ router.post('/', async (req, res) => {
 router.patch('/:id', async (req, res) => {
 	try {
 		const { id } = req.params;
+		const { is_completed } = req.body;
 
 		const result = await pool.query(
 			'UPDATE todo_list SET	is_completed = TRUE, updated_at = CURRENT_TIMESTAMP WHERE id = $1 RETURNING *',
-			[id]
+			[id, is_completed]
 		);
 
 		res.json(result.rows[0])
+		console.log(result.rows[0])
 	} catch (e) {
 		console.log('todo.js patch Error Message :', e)
 		res.status(400).json({ error: e.message })
