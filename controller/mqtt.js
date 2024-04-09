@@ -1,6 +1,8 @@
 const aedes = require('aedes')()
 const net = require('net')
 const port = 1883 //* MQTT 표준 포트
+const mqtt = require('mqtt')
+const client = mqtt.connect('mqtt://localhost')
 
 const server = net.createServer(aedes.handle)
 
@@ -25,6 +27,11 @@ aedes.on('clientDisconnect', (client) => {
 //* 메세지 발생 이벤트
 aedes.on('publish', async (packet, client)=> {
   if (client) {
-    console.log(`메세지: ${packet.topic} -> ${packet.payload.toString()}`)
+    if (packet.topic === '/api/todo') {
+
+      console.log(`메세지: ${packet.topic} -> ${packet.payload.toString()}`)
+    } else {
+      console.log('올바른 사용방법이 아닙니다.')
+    }
   }
 })
