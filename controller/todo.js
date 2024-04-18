@@ -22,21 +22,21 @@ router.post('/', async (req, res) => {
 // todo_list 완료하기
 router.patch('/:id', async (req, res) => {
 	try {
-		const { _id } = req.params;
-		const { is_completed } = req.body;
+		const { id } = req.params; // URL 파라미터에서 id 추출
+		const { is_completed } = req.body; // 요청 바디에서 is_completed 추출
 
 		const result = await pool.query(
-			'UPDATE todo_list SET	is_completed = TRUE, updated_at = CURRENT_TIMESTAMP WHERE id = $1 RETURNING *',
-			[_id,is_completed]
+			'UPDATE todo_list SET is_completed = $2, updated_at = CURRENT_TIMESTAMP WHERE _id = $1 RETURNING *',
+			[id, is_completed] // $1과 $2에 해당하는 값을 배열로 전달
 		);
 
-		res.json(result.rows[0])
-		console.log(result.rows[0])
+		res.json(result.rows[0]); // 업데이트된 row 반환
+		console.log(result.rows[0]); // 서버 로그에 결과 출력
 	} catch (e) {
-		console.log('todo.js patch Error Message :', e)
-		res.status(400).json({ error: e.message })
+		console.log('todo.js patch Error Message :', e); // 에러 로깅
+		res.status(400).json({ error: e.message }); // 클라이언트에 에러 메시지 응답
 	}
-})
+});
 
 // todo_list 전체 가져오기
 router.get('/', async (req, res) => {
