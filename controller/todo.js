@@ -27,7 +27,7 @@ router.patch('/:id', async (req, res) => {
 
 		const result = await pool.query(
 			'UPDATE todo_list SET	is_completed = TRUE, updated_at = CURRENT_TIMESTAMP WHERE id = $1 RETURNING *',
-			[_id, is_completed]
+			[_id,is_completed]
 		);
 
 		res.json(result.rows[0])
