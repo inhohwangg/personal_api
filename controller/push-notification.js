@@ -14,7 +14,7 @@ admin.initializeApp({
 
 let userTokens = {}
 
-router.post('/api/save-token', async (req, res) => {
+router.post('/save-token', async (req, res) => {
     try {
         const { userName, fcmToken } = req.body;
         const id = uuidv4();
@@ -32,7 +32,7 @@ router.post('/api/save-token', async (req, res) => {
     }
 })
 
-router.post('/api/send-notification', async (req, res) => {
+router.post('/send-notification', async (req, res) => {
     const { userName, title, body } = req.body
 
     try {
