@@ -12,22 +12,36 @@ admin.initializeApp({
     credential: admin.credential.cert('./serviceAccountKey.json'),
 })
 
-let userTokens = {}
+router.post('/username', async (req, res) => {
+    try {
+        const {username} = req.query
+
+        res.status(200).send(username)
+    }catch (e) {
+        res.status(500).json({'message': '관리자에게 문의해주세요'})
+    }
+})
 
 router.post('/save-token', async (req, res) => {
     try {
         const { userName, fcmToken } = req.body;
         const id = uuidv4();
 
-        const query = `INSERT INTO push_noti (_id, username, token) VALUES ($1, $2, $3) ON CONFLICT (username, fcmtoken) DO NOTHING`;
+        const checkQuery = `SELECT _id FROM push_noti WHERE username = $1 AND fcmtoken = $2`;
+        const checkValues = [userName, fcmToken]
+        const checkResult = await pool.query(checkQuery, checkValues);
+        
+        if (checkResult.rows.length === 0) {
+            const insertQuery = `INSERT INTO push_noti (_id, username, fcmtoken) VALUES ($1, $2, $3)`;
+            const insertValues = [id, userName, fcmToken]
+            await pool.query(insertQuery, insertValues);
 
-        const values = [id, userName, fcmToken];
-
-        await pool.query(query, values)
-
-        res.status(200).send('Token saved')
+            res.status(200).send('Token saved')
+        } else {
+            res.status(200).send('Token already exists')
+        }
     } catch (e) {
-        res.status(500).send('Token Save Failed', e)
+        res.status(500).send('Token Save Failed')
         console.log('/api/save-token error', e)
     }
 })
@@ -61,11 +75,11 @@ router.post('/send-notification', async (req, res) => {
             })
             .catch((error) => {
                 console.error('Error sending message:', error);
-                res.status(500).send('Error sending push notification',error)
+                res.status(500).send('Error sending push notification')
             })
 
     } catch (e) {
-        res.status(500).send('Error querying database',e)
+        res.status(500).send('Error querying database')
         console.log('/api/send-notification error', e)
     }
 
