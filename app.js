@@ -4,6 +4,7 @@ const port = 3000;
 const bodyParser = require('body-parser');
 const userRouters = require('./controller/users');
 const todoRouters = require('./controller/todo')
+const pushNotification = require('./controller/push-notification')
 const authRouter = require('./controller/kakao-auth')
 // const session = require('express-session')
 // const { passport } = require('./controller/auth-middleware')
@@ -24,6 +25,7 @@ app.use(bodyParser.json());
 
 app.use('/api/users', userRouters);
 app.use('/api/todo', todoRouters);
+app.use('/api/push', pushNotification);
 // app.use('/api/kakao', authRouter)
 
 app.use((req, res, next) => {
