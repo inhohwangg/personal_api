@@ -81,6 +81,9 @@ web_modules/
 .env.dev
 .env.production
 
+# firebase file
+.serviceAccountKey.json
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache
