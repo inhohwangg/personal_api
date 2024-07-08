@@ -14,9 +14,9 @@ admin.initializeApp({
 
 router.post('/username', async (req, res) => {
     try {
-        const {username} = req.query
+        const {name} = req.query
 
-        res.status(200).send(username)
+        res.status(200).send(name)
     }catch (e) {
         res.status(500).json({'message': '관리자에게 문의해주세요'})
     }
