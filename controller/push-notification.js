@@ -27,7 +27,7 @@ router.post('/save-token', async (req, res) => {
 
         res.status(200).send('Token saved')
     } catch (e) {
-        res.status(500).send('Token Save Failed')
+        res.status(500).send('Token Save Failed', e)
         console.log('/api/save-token error', e)
     }
 })
@@ -61,11 +61,11 @@ router.post('/send-notification', async (req, res) => {
             })
             .catch((error) => {
                 console.error('Error sending message:', error);
-                res.status(500).send('Error sending push notification')
+                res.status(500).send('Error sending push notification',error)
             })
 
     } catch (e) {
-        res.status(500).send('Error querying database')
+        res.status(500).send('Error querying database',e)
         console.log('/api/send-notification error', e)
     }
 
