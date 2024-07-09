@@ -13,9 +13,10 @@ admin.initializeApp({
 })
 
 router.get('/status', async (req, res) => {
-    res.status(200).json({status:200,message: 'push-notification api is work!'})
+    res.status(200).json({ status: 200, message: 'push-notification api is work!' })
 })
 
+//* userName , fcmToken 저장
 router.post('/save-token', async (req, res) => {
     try {
         const { userName, fcmToken } = req.body;
@@ -25,7 +26,12 @@ router.post('/save-token', async (req, res) => {
         const checkQuery = `SELECT _id FROM push_noti WHERE username = $1 AND fcmtoken = $2`;
         const checkValues = [userName, fcmToken]
         const checkResult = await pool.query(checkQuery, checkValues);
+
         if (checkResult.rows.length === 0) {
+            const userCheckQuery = `SELECT _id FROM push_noti WHERE username = $1`;
+            const userCheckValues = [userName];
+            const userCheckResult = await pool.query(userCheckQuery, userCheckValues);
+
             if (checkResult.rows.length > 0) {
                 //* userName 이 존재하는 경우 , 기존의 레코드의 fcmToken 업데이트
                 const updateQuery = 'UPDATE push_noti SET fcmtoken = $2 WHERE username = $1'
@@ -50,6 +56,7 @@ router.post('/save-token', async (req, res) => {
     }
 })
 
+//* 특정 사용자에게 알람 보내기 
 router.post('/send-notification', async (req, res) => {
     const { userName, title, body } = req.body
 
@@ -87,5 +94,80 @@ router.post('/send-notification', async (req, res) => {
         console.log('/api/send-notification error', e)
     }
 })
+
+
+//* 전체 사용자에게 알림 보내기 
+router.post('/send-notifications', async (req, res) => {
+    try {
+        const tokens = await getAllTokens()
+        await sendPush(tokens);
+        res.sendStatus(200).json({ message: '푸시 알림 성공' })
+    } catch (error) {
+        console.error('Error sending notification :', error)
+        res.status(500).json({ message: 'Failed to send notification' })
+    }
+})
+
+async function getAllTokens() {
+    try {
+        const result = await pool.query(`SELECT fcmtoken FROM push_noti`)
+        return result.rows.map(row => row.fcmtoken);
+    } catch (error) {
+        console.log('getAllTokens error', error);
+        return [];
+    }
+}
+
+async function sendPush(tokens) {
+    const accessToken = await getAccessToken()
+
+    tokens.forEach(async (token) => {
+        try {
+            const res = await axios.post(
+                'https://fcm.googleapis.com/v1/projects/gractorapp/messages:send',
+                {
+                    message: {
+                        notification: {
+                            title: 'New Notification',
+                            body: `You have a new notification`
+                        },
+                        android: {
+                            priority: 'high',
+                            notification: {
+                                click_action: 'FLUTTER_NOTIFICATION_CLICK'
+                            },
+                        },
+                        apns: {
+                            header: {
+                                'apns-priority': '10'
+                            },
+                            payload: {
+                                aps: {
+                                    alert: {
+                                        title: 'New Notification',
+                                        body: `You have a new notification`
+                                    }
+                                }
+                            },
+                        },
+                        token,
+                    },
+                    header: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${accessToken}`
+                    }
+                }
+            )
+            if (response.status === 200) {
+                console.log(`Push notification sent successfully to ${token}`);
+            } else {
+                console.error(`Failed to send push notification to ${token}`);
+            }
+        } catch (e) {
+            console.log('sendPush error', e);
+        }
+    })
+}
+
 
 module.exports = router;
