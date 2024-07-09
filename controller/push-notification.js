@@ -12,7 +12,7 @@ app.use(bodyParser.json())
 
 
 admin.initializeApp({
-    credential: admin.credential.cert('./serviceAccountKey.json'),
+    credential: admin.credential.cert('./controller/serviceAccountKey.json'),
   });
   
   app.use(bodyParser.json());
