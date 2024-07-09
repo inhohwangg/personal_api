@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const router = express.Router();
 const pool = require("../dbConnection");
 const { v4: uuidv4 } = require('uuid')
-const { google } = require('google-auth-library')
+const { google } = require('googleapis')
 const path = require('path')
 
 app.use(bodyParser.json())
