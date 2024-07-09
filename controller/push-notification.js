@@ -113,23 +113,11 @@ admin.initializeApp({
       const tokens = await getAllTokens();
       console.log('All Tokens:', tokens);
   
-      const message = {
-        notification: {
-          title: 'New Notification',
-          body: 'You have a new notification',
-        },
-        tokens: tokens,
-      };
+      if (tokens.length === 0) {
+        return res.status(400).send('No tokens found');
+      }
   
-      const response = await admin.messaging().sendMulticast(message);
-      console.log('Successfully sent messages:', response);
-  
-      // 실패한 메시지 로그 출력
-      response.responses.forEach((resp, idx) => {
-        if (!resp.success) {
-          console.error(`Failed to send message to ${tokens[idx]}:`, resp.error);
-        }
-      });
+      await sendPush(tokens);
   
       res.status(200).json({ message: '푸시 알림 성공' });
     } catch (error) {
@@ -137,6 +125,7 @@ admin.initializeApp({
       res.status(500).json({ message: 'Failed to send notification' });
     }
   });
+  
   
   async function getAllTokens() {
     try {
@@ -164,55 +153,38 @@ admin.initializeApp({
   async function sendPush(tokens) {
     const accessToken = await getAccessToken(); // getAccessToken 함수 사용
   
-    for (const token of tokens) {
-      try {
-        const res = await axios.post(
-          'https://fcm.googleapis.com/v1/projects/gractorapp/messages:send',
-          {
-            message: {
-              notification: {
-                title: 'New Notification',
-                body: 'You have a new notification',
-              },
-              android: {
-                priority: 'high',
-                notification: {
-                  click_action: 'FLUTTER_NOTIFICATION_CLICK',
-                },
-              },
-              apns: {
-                headers: {
-                  'apns-priority': '10',
-                },
-                payload: {
-                  aps: {
-                    alert: {
-                      title: 'New Notification',
-                      body: 'You have a new notification',
-                    },
-                  },
-                },
-              },
-              token: token,
-            },
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }
-        );
+    const message = {
+      notification: {
+        title: 'New Notification',
+        body: 'You have a new notification',
+      },
+      tokens: tokens,
+    };
   
-        if (res.status === 200) {
-          console.log(`Push notification sent successfully to ${token}`);
-        } else {
-          console.error(`Failed to send push notification to ${token}`);
+    try {
+      const response = await axios.post(
+        'https://fcm.googleapis.com/v1/projects/gractorapp/messages:send',
+        {
+          message: message,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
         }
-      } catch (e) {
-        console.log(`sendPush error for token ${token}:`, e);
-      }
+      );
+  
+      console.log('Successfully sent messages:', response.data);
+      response.data.responses.forEach((resp, idx) => {
+        if (!resp.success) {
+          console.error(`Failed to send message to ${tokens[idx]}:`, resp.error);
+        }
+      });
+    } catch (e) {
+      console.log(`sendPush error:`, e);
     }
   }
+  
   
 module.exports = router;
