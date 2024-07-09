@@ -12,14 +12,8 @@ admin.initializeApp({
     credential: admin.credential.cert('./serviceAccountKey.json'),
 })
 
-router.post('/username', async (req, res) => {
-    try {
-        const {name} = req.query
-
-        res.status(200).send(name)
-    }catch (e) {
-        res.status(500).json({'message': '관리자에게 문의해주세요'})
-    }
+router.get('/status', async (req, res) => {
+    res.status(200).json({status:200,message: 'push-notification api is work!'})
 })
 
 router.post('/save-token', async (req, res) => {
@@ -27,16 +21,26 @@ router.post('/save-token', async (req, res) => {
         const { userName, fcmToken } = req.body;
         const id = uuidv4();
 
+        //* userName 과 fcmToken 이 모두 일치하는 경우 체크 
         const checkQuery = `SELECT _id FROM push_noti WHERE username = $1 AND fcmtoken = $2`;
         const checkValues = [userName, fcmToken]
         const checkResult = await pool.query(checkQuery, checkValues);
-        
         if (checkResult.rows.length === 0) {
-            const insertQuery = `INSERT INTO push_noti (_id, username, fcmtoken) VALUES ($1, $2, $3)`;
-            const insertValues = [id, userName, fcmToken]
-            await pool.query(insertQuery, insertValues);
+            if (checkResult.rows.length > 0) {
+                //* userName 이 존재하는 경우 , 기존의 레코드의 fcmToken 업데이트
+                const updateQuery = 'UPDATE push_noti SET fcmtoken = $2 WHERE username = $1'
+                const updateValues = [userName, fcmToken]
+                await pool.query(updateQuery, updateValues);
 
-            res.status(200).send('Token saved')
+                res.status(200).send('Token updated')
+            } else {
+                //* userName 이 존재하지 않는 경우, 새로운 레코드 추가
+                const insertQuery = 'INSERT INTO push_noti (_id, username, fcmtoken) VALUES ($1,$2,$3)'
+                const insertValues = [id, userName, fcmToken]
+                await pool.query(insertQuery, insertValues);
+
+                res.status(200).send('Token saved')
+            }
         } else {
             res.status(200).send('Token already exists')
         }
@@ -82,8 +86,6 @@ router.post('/send-notification', async (req, res) => {
         res.status(500).send('Error querying database')
         console.log('/api/send-notification error', e)
     }
-
-
 })
 
 module.exports = router;
