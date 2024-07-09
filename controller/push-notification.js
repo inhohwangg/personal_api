@@ -32,10 +32,14 @@ admin.initializeApp({
       const checkValues = [userName, fcmToken];
       const checkResult = await pool.query(checkQuery, checkValues);
   
+      console.log('Check Result:', checkResult.rows);
+  
       if (checkResult.rows.length === 0) {
         const userCheckQuery = `SELECT _id FROM push_noti WHERE username = $1`;
         const userCheckValues = [userName];
         const userCheckResult = await pool.query(userCheckQuery, userCheckValues);
+  
+        console.log('User Check Result:', userCheckResult.rows);
   
         if (userCheckResult.rows.length > 0) {
           //* userName 이 존재하는 경우 , 기존의 레코드의 fcmToken 업데이트
@@ -72,6 +76,8 @@ admin.initializeApp({
       const result = await pool.query(query, values);
       const tokens = result.rows.map(row => row.fcmtoken);
   
+      console.log('Tokens:', tokens);
+  
       if (tokens.length === 0) {
         return res.status(400).send('No token found');
       }
@@ -104,6 +110,7 @@ admin.initializeApp({
   router.post('/send-notifications', async (req, res) => {
     try {
       const tokens = await getAllTokens();
+      console.log('All Tokens:', tokens);
       await sendPush(tokens);
       res.status(200).json({ message: '푸시 알림 성공' });
     } catch (error) {
@@ -115,6 +122,7 @@ admin.initializeApp({
   async function getAllTokens() {
     try {
       const result = await pool.query('SELECT fcmtoken FROM push_noti');
+      console.log('getAllTokens result:', result.rows);
       return result.rows.map(row => row.fcmtoken);
     } catch (error) {
       console.log('getAllTokens error', error);
@@ -130,6 +138,7 @@ admin.initializeApp({
       ['https://www.googleapis.com/auth/firebase.messaging']
     );
     await client.authorize();
+    console.log('Access Token:', client.credentials.access_token);
     return client.credentials.access_token;
   }
   
@@ -186,6 +195,5 @@ admin.initializeApp({
       }
     }
   }
-
-
+  
 module.exports = router;
