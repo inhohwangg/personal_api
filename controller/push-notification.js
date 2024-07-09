@@ -5,6 +5,8 @@ const bodyParser = require('body-parser');
 const router = express.Router();
 const pool = require("../dbConnection");
 const { v4: uuidv4 } = require('uuid')
+const { google } = require('google-auth-library')
+const path = require('path')
 
 app.use(bodyParser.json())
 
@@ -28,11 +30,13 @@ router.post('/save-token', async (req, res) => {
         const checkResult = await pool.query(checkQuery, checkValues);
 
         if (checkResult.rows.length === 0) {
+            console.log('this work?!')
             const userCheckQuery = `SELECT _id FROM push_noti WHERE username = $1`;
             const userCheckValues = [userName];
             const userCheckResult = await pool.query(userCheckQuery, userCheckValues);
 
             if (checkResult.rows.length > 0) {
+                console.log('this work?!!!!!!')
                 //* userName 이 존재하는 경우 , 기존의 레코드의 fcmToken 업데이트
                 const updateQuery = 'UPDATE push_noti SET fcmtoken = $2 WHERE username = $1'
                 const updateValues = [userName, fcmToken]
@@ -119,14 +123,20 @@ async function getAllTokens() {
 }
 
 async function getAccessToken() {
-    // 실제로 OAuth 2.0 Access Token을 가져오는 로직을 여기에 구현하세요.
-    return 'your_access_token';
-  }
+    const keyPath = path.json(__dirname, 'serviceAccountKey.json')
+    const keyFile = require(keyPath)
+    const client = new google.auth.JWT(
+        keyFile.client_email, null, keyFile.private_key,
+        ['https://www.googleapis.com/auth/firebase.messaging']
+    );
+    await client.authorize()
+    return client.credentials.access_token;
+}
 
 async function sendPush(tokens) {
-    const accessToken = await getAccessToken()
+    const accessToken = await getAccessToken(); // getAccessToken 함수 사용
 
-    tokens.forEach(async (token) => {
+    for (const token of tokens) {
         try {
             const res = await axios.post(
                 'https://fcm.googleapis.com/v1/projects/gractorapp/messages:send',
@@ -134,44 +144,47 @@ async function sendPush(tokens) {
                     message: {
                         notification: {
                             title: 'New Notification',
-                            body: `You have a new notification`
+                            body: 'You have a new notification',
                         },
                         android: {
                             priority: 'high',
                             notification: {
-                                click_action: 'FLUTTER_NOTIFICATION_CLICK'
+                                click_action: 'FLUTTER_NOTIFICATION_CLICK',
                             },
                         },
                         apns: {
-                            header: {
-                                'apns-priority': '10'
+                            headers: {
+                                'apns-priority': '10',
                             },
                             payload: {
                                 aps: {
                                     alert: {
                                         title: 'New Notification',
-                                        body: `You have a new notification`
-                                    }
-                                }
+                                        body: 'You have a new notification',
+                                    },
+                                },
                             },
                         },
                         token,
                     },
-                    header: {
+                },
+                {
+                    headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `Bearer ${accessToken}`
-                    }
+                        Authorization: `Bearer ${accessToken}`,
+                    },
                 }
-            )
-            if (response.status === 200) {
+            );
+
+            if (res.status === 200) {
                 console.log(`Push notification sent successfully to ${token}`);
             } else {
                 console.error(`Failed to send push notification to ${token}`);
             }
         } catch (e) {
-            console.log('sendPush error', e);
+            console.log(`sendPush error for token ${token}:`, e);
         }
-    })
+    }
 }
 
 
