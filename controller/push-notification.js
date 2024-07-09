@@ -118,6 +118,11 @@ async function getAllTokens() {
     }
 }
 
+async function getAccessToken() {
+    // 실제로 OAuth 2.0 Access Token을 가져오는 로직을 여기에 구현하세요.
+    return 'your_access_token';
+  }
+
 async function sendPush(tokens) {
     const accessToken = await getAccessToken()
 
