@@ -5,6 +5,13 @@ const jwt = require('jsonwebtoken');
 const { authticateToken } = require('./auth-middleware');
 const pool = require("../dbConnection");
 
+router.get('/status', (req,res)=> {
+  res.status(200).json({
+    status: 200,
+    message : 'users api is work!',
+  })
+})
+
 //! 사용자 계정 생성하기
 router.post("/", async (req, res) => {
   const { username, name, password, passwordconfirm, age } = req.body;

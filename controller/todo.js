@@ -3,6 +3,10 @@ const router = express.Router();
 const authticateToken = require('./auth-middleware');
 const pool = require('../dbConnection');
 
+router.get('/status', (req,res)=> {
+	res.status(200).json({status:200,message:'todo api is work!'})
+})
+
 // todo_list 만들기
 router.post('/', async (req, res) => {
 	try {
