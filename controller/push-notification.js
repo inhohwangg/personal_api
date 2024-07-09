@@ -112,7 +112,25 @@ admin.initializeApp({
     try {
       const tokens = await getAllTokens();
       console.log('All Tokens:', tokens);
-      await sendPush(tokens);
+  
+      const message = {
+        notification: {
+          title: 'New Notification',
+          body: 'You have a new notification',
+        },
+        tokens: tokens,
+      };
+  
+      const response = await admin.messaging().sendMulticast(message);
+      console.log('Successfully sent messages:', response);
+  
+      // 실패한 메시지 로그 출력
+      response.responses.forEach((resp, idx) => {
+        if (!resp.success) {
+          console.error(`Failed to send message to ${tokens[idx]}:`, resp.error);
+        }
+      });
+  
       res.status(200).json({ message: '푸시 알림 성공' });
     } catch (error) {
       console.error('Error sending notification:', error);
