@@ -18,7 +18,7 @@ router.post('/payload', (req, res) => {
     const payload = req.body;
 
     if (payload.ref === 'refs/heads/main') { // 원하는 브랜치인지 확인
-        const cmd = 'git config --global --add safe.directory /home/hwanginho/dev/personal_api && cd /home/hwanginho/dev/personal_api && git pull && sudo systemctl restart personal-api.service';
+        const cmd = 'git config --global --add safe.directory /home/hwanginho/dev/personal_api && cd /home/hwanginho/dev/personal_api && sudo git pull && sudo systemctl restart personal-api.service';
         exec(cmd, (error, stdout, stderr) => {
             if (error) {
                 console.error(`exec error: ${error}`);
