@@ -197,7 +197,9 @@ async function sendPush(tokens) {
             console.log('푸시 알림을 실패했습니다.')
         }
     } catch (e) {
-        console.log(`sendPush error:`, e.message);
+        console.log(`sendPush data error:`, e.response.data);
+        console.log(`sendPush status error:`, e.response.status);
+        console.log(`sendPush headers error:`, e.response.headers);
     }
 }
 
