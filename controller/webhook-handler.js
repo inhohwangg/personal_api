@@ -31,4 +31,9 @@ router.post('/payload', (req, res) => {
     res.status(200).json({ status: 'success' });
 });
 
+router.use((err,req,res,next)=> {
+    console.error(err.stack)
+    res.status(500).send('Something broke!')
+})
+
 module.exports = router;
