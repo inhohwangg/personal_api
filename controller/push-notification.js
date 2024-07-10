@@ -153,7 +153,7 @@ async function sendPush(tokens) {
     const accessToken = await getAccessToken(); // getAccessToken 함수 사용
 
     try {
-        const response = await axios.post(
+        const res = await axios.post(
             'https://fcm.googleapis.com/v1/projects/gractorapp/messages:send',
             {
                 message: {
@@ -197,7 +197,7 @@ async function sendPush(tokens) {
             console.log('푸시 알림을 실패했습니다.')
         }
     } catch (e) {
-        console.log(`sendPush error:`, e);
+        console.log(`sendPush error:`, e.message);
     }
 }
 
