@@ -5,7 +5,8 @@ const { v4: uuidv4 } = require('uuid');
 
 router.post('/', async (req, res) => {
 	try {
-		const { _id, video, width, height, title, content, play_time } = req.body
+		const { video, width, height, title, content, play_time } = req.body
+		const _id = uuidv4();
 
 		const query = `
 			INSERT INTO signage (_id , video , width , height , title , content , play_time )
@@ -20,7 +21,6 @@ router.post('/', async (req, res) => {
 			status: 201,
 			message: 'signage data new create',
 			data: {
-				'_id': _id,
 				'video': video,
 				'width': width,
 				'height': height,
