@@ -18,7 +18,7 @@ router.post('/payload', (req, res) => {
     const payload = req.body;
 
     if (payload.ref === 'refs/heads/main') { // 원하는 브랜치인지 확인
-        exec('cd /path/to/your/project && git pull && systemctl restart personal-api.service', (error, stdout, stderr) => {
+        exec('cd /home/hwanginho/dev/personal_api && git pull && sudo systemctl restart personal-api.service', (error, stdout, stderr) => {
             if (error) {
                 console.error(`exec error: ${error}`);
                 return;
