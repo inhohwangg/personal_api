@@ -3,6 +3,54 @@ const router = express.Router();
 const pool = require('../dbConnection')
 const { v4: uuidv4 } = require('uuid');
 
+// status
+router.get('/status', async (req, res) => {
+	try {
+		res.status(200).json({
+			post: {
+				url: 'https://api.fappworkspace.store/api/signage',
+				method: 'post',
+				body: {
+					"video": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+					"width": "800",
+					"height": "600",
+					"title": "세번째 영상",
+					"content": "크롬 샘플 영상",
+					"play_time": "00:01:00"
+				},
+				message: 'post 사용 방법 예시입니다.'
+			},
+			get: {
+				allRead: {
+					url: 'https://api.fappworkspace.store/api/signage',
+					method: 'get',
+				},
+				onlyOneRead: {
+					url: 'https://api.fappworkspace.store/api/signage?_id=${_id}',
+					method: 'get',
+				},
+				message: 'post 사용 방법 예시입니다.'
+			},
+			patch: {
+				url: 'https://api.fappworkspace.store/api/signage/_id',
+				method: 'patch',
+				message: 'post 사용 방법 예시입니다.'
+			},
+			delete: {
+				url: 'https://api.fappworkspace.store/api/signage/_id',
+				method: 'delete',
+				message: 'post 사용 방법 예시입니다.'
+			}
+		})
+	} catch (e) {
+		res.status(500).json({
+			status: 500,
+			message: 'server error',
+			error: e
+		})
+	}
+})
+
 // data create
 router.post('/', async (req, res) => {
 	try {
