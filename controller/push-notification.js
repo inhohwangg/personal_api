@@ -341,7 +341,7 @@ async function sendPush(tokens) {
 
         // sendEachForMulticast 호출
         const response = await admin.messaging().sendEachForMulticast(message);
-        console.log(response.data)
+        console.log(response)
         if (response.successCount > 0) {
             console.log('푸시 알림을 성공적으로 보냈습니다.');
         } else {
