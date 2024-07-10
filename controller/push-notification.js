@@ -19,7 +19,7 @@ admin.initializeApp({
 app.use(bodyParser.json());
 
 router.get('/status', async (req, res) => {
-    res.status(200).json({ status: 200, message: 'push-notification api is working@@@@' });
+    res.status(200).json({ status: 200, message: 'push-notification api is working!' });
 });
 
 //* userName , fcmToken 저장

@@ -27,7 +27,7 @@ app.use(bodyParser.json());
 app.use('/api/users', userRouters);
 app.use('/api/todo', todoRouters);
 app.use('/api/push', pushNotification);
-app.use(webhook);
+app.use('/api/webhook',webhook);
 // app.use('/api/kakao', authRouter)
 
 app.use((req, res, next) => {
