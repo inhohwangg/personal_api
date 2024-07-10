@@ -177,7 +177,7 @@ async function sendPush(tokens) {
                         },
                     },
                 },
-                tokens: tokens  // 여러 토큰을 보낼 때 사용
+                token: tokens  // 여러 토큰을 보낼 때 사용
             },
             {
                 headers: {
