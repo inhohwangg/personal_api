@@ -193,11 +193,20 @@ async function sendPush(tokens) {
             console.log('푸시 알림을 실패했습니다.');
         }
     } catch (e) {
-        console.log(`sendPush data error:`, e.response.data);
-        console.log(`sendPush status error:`, e.response.status);
-        console.log(`sendPush headers error:`, e.response.headers);
+        if (e.response) {
+            // 서버 응답이 있는 경우
+            console.log('Response data:', e.response.data);
+            console.log('Response status:', e.response.status);
+            console.log('Response headers:', e.response.headers);
+        } else if (e.request) {
+            // 요청이 만들어졌으나 서버로부터 응답이 없는 경우
+            console.log('Request data:', e.request);
+        } else {
+            // 요청을 설정하는 도중에 오류가 발생한 경우
+            console.log('Error message:', e.message);
+        }
+        console.log('Error config:', e.config);
     }
 }
-
 
 module.exports = router;
