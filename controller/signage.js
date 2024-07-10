@@ -38,6 +38,7 @@ router.post('/', async (req, res) => {
 	}
 })
 
+// all data read
 router.get('/', async (req, res) => {
 	try {
 		const query = `SELECT * FROM signage`
@@ -53,6 +54,83 @@ router.get('/', async (req, res) => {
 		res.status(500).json({
 			status: 500,
 			message: 'signage data read Error require get api code confirm',
+			errorMessage: e
+		})
+	}
+})
+
+// only one data read
+router.get('/:id', async (req, res) => {
+	try {
+		const { _id } = req.params
+		const query = `SELECT * FROM signage WHERE _id= $1`
+		const value = [_id];
+		const result = await pool.query(query, value);
+
+		if (result.rows.length === 0) {
+			res.status(404).json({
+				status: 404,
+				message: 'signage data read Error require get api code confirm',
+				errorMessage: 'signage data not found'
+			})
+		} else {
+			res.status(200).json({
+				status: 200,
+				message: 'signage data read',
+				data: {
+					rows: result.rows[0]
+				}
+			})
+		}
+	} catch (e) {
+		res.status(500).json({
+			status: 500,
+			message: 'signage data read Error require get api code confirm',
+			errorMessage: e
+		})
+	}
+})
+
+// update
+router.patch('/:id', async (req, res) => {
+	try {
+		const { _id } = req.params;
+		const { video, width, height, title, content, play_time } = req.body;
+
+		const query = `
+			UPDATE signage
+			SET video=$1, width=$2, height=$3, title=$4, content=$5, play_time=$6
+			WHERE id=$7
+		`
+		const values = [video, width, height, title, content, play_time, _id];
+
+		const result = await pool.query(query, values);
+
+		if (result.rowCount === 0) {
+			res.status(404).json({
+				status: 404,
+				message: 'signage data update Error require patch api code confirm',
+			})
+		} else {
+			res.status(200).json({
+				status: 200,
+				message: 'signage data update',
+				data: {
+					rows: {
+						'video': video,
+						'width': width,
+						'height': height,
+						'title': title,
+						'content': content,
+						'play_time': play_time
+					}
+				}
+			})
+		}
+	} catch (e) {
+		res.status(500).json({
+			status: 500,
+			message: 'signage data update Error require patch api code confirm',
 			errorMessage: e
 		})
 	}
