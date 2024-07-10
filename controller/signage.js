@@ -32,9 +32,31 @@ router.post('/', async (req, res) => {
 	} catch (e) {
 		res.status(500).json({
 			status: 500,
-			message: 'signage data create Error require api code confirm',
+			message: 'signage data create Error require post api code confirm',
+			errorMessage: e
 		})
-		console.log('signage data create Error', e)
+	}
+})
+
+router.get('/', async (req, res) => {
+	try {
+		const query = `SELECT * FROM signage`
+		const result = await pool.query(query);
+		res.status(200).json({
+			status: 200,
+			message: 'signage data read',
+			data: {
+				'signage': {
+					result
+				}
+			}
+		})
+	} catch (e) {
+		res.status(500).json({
+			status: 500,
+			message: 'signage data read Error require get api code confirm',
+			errorMessage: e
+		})
 	}
 })
 
