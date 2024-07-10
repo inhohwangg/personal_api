@@ -48,7 +48,7 @@ router.get('/', async (req, res) => {
 			status: 200,
 			message: 'signage data read',
 			data: {
-				rows: result.rows[0]
+				rows: result.rows
 			}
 		})
 	} catch (e) {
@@ -130,9 +130,32 @@ router.patch('/:_id', async (req, res) => {
 		res.status(500).json({
 			status: 500,
 			message: 'signage data update error',
-			errorMessage: e.message,
+			errorMessage: e,
 		});
 	}
 });
+
+// delete
+router.delete('/:_id', async (req, res) => {
+	try {
+		const { _id } = req.params;
+		const query = `
+			DELETE FROM signage WHERE _id=$1
+		`
+		const values = [_id];
+		const result = await pool.query(query, values);
+
+		res.status(200).json({
+			status: 200,
+			message: 'signage data deleted successfully',
+		})
+	} catch (e) {
+		res.status(500).json({
+			status: 500,
+			message: 'signage data delete error',
+			errorMessage: e,
+		})
+	}
+})
 
 module.exports = router;
