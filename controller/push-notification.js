@@ -93,7 +93,6 @@ router.post('/send-notification', async (req, res) => {
 
         admin.messaging().sendMulticast(message)
             .then((response) => {
-                console.log('Successfully sent message:', response);
                 res.status(200).send('Push notification sent successfully');
             })
             .catch((error) => {
@@ -146,7 +145,7 @@ async function getAccessToken() {
         ['https://www.googleapis.com/auth/firebase.messaging']
     );
     await client.authorize();
-    console.log('Access Token:', client.credentials.access_token);
+    // console.log('Access Token:', client.credentials.access_token);
     return client.credentials.access_token;
 }
 
@@ -154,7 +153,7 @@ async function sendPush(tokens) {
     const accessToken = await getAccessToken(); // getAccessToken 함수 사용
 
     try {
-        const res = await axios.post(
+        const response = await axios.post(
             'https://fcm.googleapis.com/v1/projects/gractorapp/messages:send',
             {
                 message: {
