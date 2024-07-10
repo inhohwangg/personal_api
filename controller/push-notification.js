@@ -33,8 +33,6 @@ router.post('/save-token', async (req, res) => {
         const checkValues = [userName, fcmToken];
         const checkResult = await pool.query(checkQuery, checkValues);
 
-        console.log('Check Result:', checkResult.rows);
-
         if (checkResult.rows.length === 0) {
             const userCheckQuery = `SELECT _id FROM push_noti WHERE username = $1`;
             const userCheckValues = [userName];
@@ -110,7 +108,6 @@ router.post('/send-notification', async (req, res) => {
 router.post('/send-notifications', async (req, res) => {
     try {
         const tokens = await getAllTokens();
-        console.log('All Tokens:', tokens);
 
         if (tokens.length === 0) {
             return res.status(400).send('No tokens found');
@@ -129,7 +126,6 @@ router.post('/send-notifications', async (req, res) => {
 async function getAllTokens() {
     try {
         const result = await pool.query('SELECT fcmtoken FROM push_noti');
-        console.log('getAllTokens result:', result.rows);
         return result.rows.map(row => row.fcmtoken);
     } catch (error) {
         console.log('getAllTokens error', error);
@@ -158,29 +154,29 @@ async function sendPush(tokens) {
             {
                 message: {
                     notification: {
-                        title: 'Mew Notification',
+                        title: 'New Notification',
                         body: 'You have a new notification',
                     },
                     android: {
                         priority: 'high',
                         notification: {
-                            click_action: 'FLUTTER_NOTIFICATION_CLICK'
+                            click_action: 'FLUTTER_NOTIFICATION_CLICK',
                         },
                     },
                     apns: {
                         headers: {
-                            'apns-priority': 10,
+                            'apns-priority': '10',  // 숫자가 아닌 문자열로 설정
                         },
                         payload: {
                             aps: {
                                 alert: {
-                                    title: 'Mew Notification',
+                                    title: 'New Notification',
                                     body: 'You have a new notification',
                                 },
                             },
                         },
                     },
-                    token: tokens,
+                    token: tokens,  // 토큰이 메시지 객체의 최상위 레벨에 위치해야 함
                 },
             },
             {
@@ -192,9 +188,9 @@ async function sendPush(tokens) {
         );
 
         if (res.status === 200) {
-            console.log('푸시 알림을 성공적으로 보냈습니다.')
+            console.log('푸시 알림을 성공적으로 보냈습니다.');
         } else {
-            console.log('푸시 알림을 실패했습니다.')
+            console.log('푸시 알림을 실패했습니다.');
         }
     } catch (e) {
         console.log(`sendPush data error:`, e.response.data);
