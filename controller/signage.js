@@ -3,6 +3,7 @@ const router = express.Router();
 const pool = require('../dbConnection')
 const { v4: uuidv4 } = require('uuid');
 
+// data create
 router.post('/', async (req, res) => {
 	try {
 		const { video, width, height, title, content, play_time } = req.body
@@ -60,7 +61,7 @@ router.get('/', async (req, res) => {
 })
 
 // only one data read
-router.get('/:id', async (req, res) => {
+router.get('/:_id', async (req, res) => {
 	try {
 		const { _id } = req.params
 		const query = `SELECT * FROM signage WHERE _id= $1`
@@ -92,7 +93,7 @@ router.get('/:id', async (req, res) => {
 })
 
 // update
-router.patch('/:id', async (req, res) => {
+router.patch('/:_id', async (req, res) => {
 	try {
 		const { _id } = req.params;
 		const { video, width, height, title, content, play_time } = req.body;
