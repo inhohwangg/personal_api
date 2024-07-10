@@ -135,6 +135,7 @@ router.put('/:_id', async (req, res) => {
 			message: 'signage data update Error require patch api code confirm',
 			errorMessage: e
 		})
+		console.log(e)
 	}
 })
 
