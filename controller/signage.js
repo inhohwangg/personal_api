@@ -101,7 +101,7 @@ router.patch('/:_id', async (req, res) => {
 		const query = `
 			UPDATE signage
 			SET video=$1, width=$2, height=$3, title=$4, content=$5, play_time=$6
-			WHERE id=$7
+			WHERE _id=$7
 		`
 		const values = [video, width, height, title, content, play_time, _id];
 
