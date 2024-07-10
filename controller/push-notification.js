@@ -99,7 +99,11 @@ router.post('/send-notification', async (req, res) => {
 
         admin.messaging().sendMulticast(message)
             .then((response) => {
-                res.status(200).send('Push notification sent successfully');
+                if (response.successCount > 0) {
+                    res.status(200).send('Push notification sent successfully');
+                } else {
+                    res.status(500).send('Failed to send push notification');
+                }
             })
             .catch((error) => {
                 console.error('Error sending message:', error);
