@@ -93,7 +93,7 @@ router.get('/:_id', async (req, res) => {
 })
 
 // update
-router.put('/:_id', async (req, res) => {
+router.patch('/:_id', async (req, res) => {
 	try {
 		const { _id } = req.params;
 		const { video, width, height, title, content, play_time } = req.body;
@@ -107,36 +107,32 @@ router.put('/:_id', async (req, res) => {
 
 		const result = await pool.query(query, values);
 
-		// if (result.rowCount === 0) {
-		// 	res.status(404).json({
-		// 		status: 404,
-		// 		message: 'signage data update Error require patch api code confirm',
-		// 	})
-		// } else {
-		res.status(200).json({
-			status: 200,
-			message: 'signage data update',
-			data: {
-				rows: {
-					'video': video,
-					'width': width,
-					'height': height,
-					'title': title,
-					'content': content,
-					'play_time': play_time
-				}
-			}
-		})
-		console.log(result.rows)
-		// }
+		if (result.rowCount === 0) {
+			res.status(404).json({
+				status: 404,
+				message: 'signage data not found',
+			});
+		} else {
+			res.status(200).json({
+				status: 200,
+				message: 'signage data updated successfully',
+				data: {
+					video,
+					width,
+					height,
+					title,
+					content,
+					play_time,
+				},
+			});
+		}
 	} catch (e) {
 		res.status(500).json({
 			status: 500,
-			message: 'signage data update Error require patch api code confirm',
-			errorMessage: e
-		})
-		console.log(e)
+			message: 'signage data update error',
+			errorMessage: e.message,
+		});
 	}
-})
+});
 
 module.exports = router;
