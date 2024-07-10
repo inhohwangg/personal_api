@@ -1,13 +1,11 @@
 const express = require('express');
+const router = express.Router();
 const bodyParser = require('body-parser')
 const crypto = require('crypto');
 const {exe} = require('child_process')
-
-const app = express();
-const PORT = 3001
 const SECRET = 'your_secret'; // GitHub 웹훅 비밀 토큰
 
-app.use(bodyParser.json({
+router.use(bodyParser.json({
     verify: (req, res, buf, encoding) => {
         const signature = `sha1=${crypto.createHmac('sha1', SECRET).update(buf).digest('hex')}`;
         if (req.headers['x-hub-signature'] !== signature) {
@@ -16,7 +14,7 @@ app.use(bodyParser.json({
     }
 }));
 
-app.post('/payload', (req, res) => {
+router.post('/payload', (req, res) => {
     const payload = req.body;
 
     if (payload.ref === 'refs/heads/main') { // 원하는 브랜치인지 확인
@@ -33,14 +31,4 @@ app.post('/payload', (req, res) => {
     res.status(200).json({ status: 'success' });
 });
 
-app.use((err, req, res, next) => {
-    if (err.message === 'Invalid signature') {
-        res.status(401).send('Unauthorized');
-    } else {
-        next(err);
-    }
-});
-
-app.listen(PORT, () => {
-    console.log(`Server is listening on port ${PORT}`);
-});
+module.exports = router;
