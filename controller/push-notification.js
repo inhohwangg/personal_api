@@ -29,33 +29,18 @@ router.post('/save-token', async (req, res) => {
         const { userName, fcmToken } = req.body;
         const id = uuidv4();
 
-        //* userName 과 fcmToken 이 모두 일치하는 경우 체크 
-        const checkQuery = `SELECT _id FROM push_noti WHERE username = $1 AND fcmtoken = $2`;
-        const checkValues = [userName, fcmToken];
+        // FCM 토큰이 존재하는지 확인
+        const checkQuery = `SELECT _id FROM push_noti WHERE fcmtoken = $1`;
+        const checkValues = [fcmToken];
         const checkResult = await pool.query(checkQuery, checkValues);
 
         if (checkResult.rows.length === 0) {
-            const userCheckQuery = `SELECT _id FROM push_noti WHERE username = $1`;
-            const userCheckValues = [userName];
-            const userCheckResult = await pool.query(userCheckQuery, userCheckValues);
+            // FCM 토큰이 존재하지 않으면 새로운 레코드 추가
+            const insertQuery = 'INSERT INTO push_noti (_id, username, fcmtoken) VALUES ($1, $2, $3)';
+            const insertValues = [id, userName, fcmToken];
+            await pool.query(insertQuery, insertValues);
 
-            console.log('User Check Result:', userCheckResult.rows);
-
-            if (userCheckResult.rows.length > 0) {
-                //* userName 이 존재하는 경우 , 기존의 레코드의 fcmToken 업데이트
-                const updateQuery = 'UPDATE push_noti SET fcmtoken = $2 WHERE username = $1';
-                const updateValues = [userName, fcmToken];
-                await pool.query(updateQuery, updateValues);
-
-                res.status(200).send('Token updated');
-            } else {
-                //* userName 이 존재하지 않는 경우, 새로운 레코드 추가
-                const insertQuery = 'INSERT INTO push_noti (_id, username, fcmtoken) VALUES ($1, $2, $3)';
-                const insertValues = [id, userName, fcmToken];
-                await pool.query(insertQuery, insertValues);
-
-                res.status(200).send('Token saved');
-            }
+            res.status(200).send('Token saved');
         } else {
             res.status(200).send('Token already exists');
         }
@@ -254,7 +239,7 @@ router.post('/send-notification', async (req, res) => {
             tokens: tokens,
         };
 
-        admin.messaging().sendEachForMulticast(message)
+        admin.messaging().sendMulticast(message)
             .then((response) => {
                 res.status(200).send('Push notification sent successfully');
             })
@@ -269,6 +254,7 @@ router.post('/send-notification', async (req, res) => {
     }
 });
 
+
 //* 전체 사용자에게 알림 보내기 
 router.post('/send-notifications', async (req, res) => {
     try {
@@ -278,11 +264,44 @@ router.post('/send-notifications', async (req, res) => {
             return res.status(400).send('No tokens found');
         }
 
-        await sendPush(tokens);
+        const message = {
+            notification: {
+                title: 'New Notification',
+                body: 'You have a new notification',
+            },
+            android: {
+                priority: 'high',
+                notification: {
+                    click_action: 'FLUTTER_NOTIFICATION_CLICK',
+                },
+            },
+            apns: {
+                headers: {
+                    'apns-priority': '10',
+                },
+                payload: {
+                    aps: {
+                        alert: {
+                            title: 'New Notification',
+                            body: 'You have a new notification',
+                        },
+                    },
+                },
+            },
+            tokens: tokens, // 여러 토큰을 포함하는 배열
+        };
 
-        res.status(200).json({ message: '푸시 알림 성공' });
-    } catch (error) {
-        console.error('Error sending notification:', error);
+        const response = await admin.messaging().sendMulticast(message);
+        console.log(response);
+        if (response.successCount > 0) {
+            console.log('푸시 알림을 성공적으로 보냈습니다.');
+            res.status(200).json({ message: '푸시 알림 성공' });
+        } else {
+            console.log('푸시 알림을 실패했습니다.');
+            res.status(500).json({ message: '푸시 알림 실패' });
+        }
+    } catch (e) {
+        console.log('Error sending notification:', e);
         res.status(500).json({ message: 'Failed to send notification' });
     }
 });
