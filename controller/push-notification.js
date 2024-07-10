@@ -311,8 +311,8 @@ async function sendPush(tokens) {
     const accessToken = await getAccessToken();
 
     try {
-        const messages = tokens.map(token => ({
-            token: token,
+        // 메시지 객체를 생성합니다.
+        const message = {
             notification: {
                 title: 'New Notification',
                 body: 'You have a new notification',
@@ -336,9 +336,11 @@ async function sendPush(tokens) {
                     },
                 },
             },
-        }));
+            tokens: tokens, // 여러 토큰을 포함하는 배열
+        };
 
-        const response = await admin.messaging().sendEachForMulticast(messages);
+        // sendEachForMulticast 호출
+        const response = await admin.messaging().sendEachForMulticast(message);
 
         if (response.successCount > 0) {
             console.log('푸시 알림을 성공적으로 보냈습니다.');
@@ -358,6 +360,7 @@ async function sendPush(tokens) {
         console.log('Error config:', e.config);
     }
 }
+
 
 
 module.exports = router;
