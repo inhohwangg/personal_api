@@ -64,6 +64,151 @@ router.post('/save-token', async (req, res) => {
     }
 });
 
+// //* 특정 사용자에게 알람 보내기 
+// router.post('/send-notification', async (req, res) => {
+//     const { userName, title, body } = req.body;
+
+//     try {
+//         const query = `SELECT fcmtoken FROM push_noti WHERE username = $1`;
+//         const values = [userName];
+
+//         const result = await pool.query(query, values);
+//         const tokens = result.rows.map(row => row.fcmtoken);
+
+//         console.log('Tokens:', tokens);
+
+//         if (tokens.length === 0) {
+//             return res.status(400).send('No token found');
+//         }
+
+//         const message = {
+//             notification: {
+//                 title: title,
+//                 body: body,
+//             },
+//             tokens: tokens,
+//         };
+
+//         admin.messaging().sendEachForMulticast(message)
+//             .then((response) => {
+//                 res.status(200).send('Push notification sent successfully');
+//             })
+//             .catch((error) => {
+//                 console.error('Error sending message:', error);
+//                 res.status(500).send('Error sending push notification');
+//             });
+
+//     } catch (e) {
+//         res.status(500).send('Error querying database');
+//         console.log('/send-notification error', e);
+//     }
+// });
+
+// //* 전체 사용자에게 알림 보내기 
+// router.post('/send-notifications', async (req, res) => {
+//     try {
+//         const tokens = await getAllTokens();
+
+//         if (tokens.length === 0) {
+//             return res.status(400).send('No tokens found');
+//         }
+
+//         await sendPush(tokens);
+
+//         res.status(200).json({ message: '푸시 알림 성공' });
+//     } catch (error) {
+//         console.error('Error sending notification:', error);
+//         res.status(500).json({ message: 'Failed to send notification' });
+//     }
+// });
+
+
+// async function getAllTokens() {
+//     try {
+//         const result = await pool.query('SELECT fcmtoken FROM push_noti');
+//         return result.rows.map(row => row.fcmtoken);
+//     } catch (error) {
+//         console.log('getAllTokens error', error);
+//         return [];
+//     }
+// }
+
+// async function getAccessToken() {
+//     const keyPath = path.join(__dirname, 'serviceAccountKey.json');
+//     const keyFile = require(keyPath);
+//     const client = new google.auth.JWT(
+//         keyFile.client_email, null, keyFile.private_key,
+//         ['https://www.googleapis.com/auth/firebase.messaging']
+//     );
+//     await client.authorize();
+//     // console.log('Access Token:', client.credentials.access_token);
+//     return client.credentials.access_token;
+// }
+
+// async function sendPush(tokens) {
+//     const accessToken = await getAccessToken(); // getAccessToken 함수 사용
+
+//     try {
+//         const res = await axios.post(
+//             'https://fcm.googleapis.com/v1/projects/gractorapp/messages:send',
+//             {
+//                 message: {
+//                     notification: {
+//                         title: 'New Notification',
+//                         body: 'You have a new notification',
+//                     },
+//                     android: {
+//                         priority: 'high',
+//                         notification: {
+//                             click_action: 'FLUTTER_NOTIFICATION_CLICK',
+//                         },
+//                     },
+//                     apns: {
+//                         headers: {
+//                             'apns-priority': '10',  // 숫자가 아닌 문자열로 설정
+//                         },
+//                         payload: {
+//                             aps: {
+//                                 alert: {
+//                                     title: 'New Notification',
+//                                     body: 'You have a new notification',
+//                                 },
+//                             },
+//                         },
+//                     },
+//                 },
+//                 token: tokens  // 여러 토큰을 보낼 때 사용
+//             },
+//             {
+//                 headers: {
+//                     'Content-Type': 'application/json',
+//                     Authorization: `Bearer ${accessToken}`,
+//                 },
+//             }
+//         );
+
+//         if (res.status === 200) {
+//             console.log('푸시 알림을 성공적으로 보냈습니다.');
+//         } else {
+//             console.log('푸시 알림을 실패했습니다.');
+//         }
+//     } catch (e) {
+//         if (e.response) {
+//             // 서버 응답이 있는 경우
+//             console.log('Response data:', e.response.data);
+//             console.log('Response status:', e.response.status);
+//             console.log('Response headers:', e.response.headers);
+//         } else if (e.request) {
+//             // 요청이 만들어졌으나 서버로부터 응답이 없는 경우
+//             console.log('Request data:', e.request);
+//         } else {
+//             // 요청을 설정하는 도중에 오류가 발생한 경우
+//             console.log('Error message:', e.message);
+//         }
+//         console.log('Error config:', e.config);
+//     }
+// }
+
 //* 특정 사용자에게 알람 보내기 
 router.post('/send-notification', async (req, res) => {
     const { userName, title, body } = req.body;
@@ -86,10 +231,29 @@ router.post('/send-notification', async (req, res) => {
                 title: title,
                 body: body,
             },
+            android: {
+                priority: 'high',
+                notification: {
+                    click_action: 'FLUTTER_NOTIFICATION_CLICK',
+                },
+            },
+            apns: {
+                headers: {
+                    'apns-priority': '10',
+                },
+                payload: {
+                    aps: {
+                        alert: {
+                            title: title,
+                            body: body,
+                        },
+                    },
+                },
+            },
             tokens: tokens,
         };
 
-        admin.messaging().sendMulticast(message)
+        admin.messaging().sendEachForMulticast(message)
             .then((response) => {
                 res.status(200).send('Push notification sent successfully');
             })
@@ -122,7 +286,6 @@ router.post('/send-notifications', async (req, res) => {
     }
 });
 
-
 async function getAllTokens() {
     try {
         const result = await pool.query('SELECT fcmtoken FROM push_noti');
@@ -141,68 +304,55 @@ async function getAccessToken() {
         ['https://www.googleapis.com/auth/firebase.messaging']
     );
     await client.authorize();
-    // console.log('Access Token:', client.credentials.access_token);
     return client.credentials.access_token;
 }
 
 async function sendPush(tokens) {
-    const accessToken = await getAccessToken(); // getAccessToken 함수 사용
+    const accessToken = await getAccessToken();
 
     try {
-        const res = await axios.post(
-            'https://fcm.googleapis.com/v1/projects/gractorapp/messages:send',
-            {
-                message: {
-                    notification: {
-                        title: 'New Notification',
-                        body: 'You have a new notification',
-                    },
-                    android: {
-                        priority: 'high',
-                        notification: {
-                            click_action: 'FLUTTER_NOTIFICATION_CLICK',
-                        },
-                    },
-                    apns: {
-                        headers: {
-                            'apns-priority': '10',  // 숫자가 아닌 문자열로 설정
-                        },
-                        payload: {
-                            aps: {
-                                alert: {
-                                    title: 'New Notification',
-                                    body: 'You have a new notification',
-                                },
-                            },
-                        },
-                    },
-                },
-                token: tokens  // 여러 토큰을 보낼 때 사용
+        const messages = tokens.map(token => ({
+            token: token,
+            notification: {
+                title: 'New Notification',
+                body: 'You have a new notification',
             },
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${accessToken}`,
+            android: {
+                priority: 'high',
+                notification: {
+                    click_action: 'FLUTTER_NOTIFICATION_CLICK',
                 },
-            }
-        );
+            },
+            apns: {
+                headers: {
+                    'apns-priority': '10',
+                },
+                payload: {
+                    aps: {
+                        alert: {
+                            title: 'New Notification',
+                            body: 'You have a new notification',
+                        },
+                    },
+                },
+            },
+        }));
 
-        if (res.status === 200) {
+        const response = await admin.messaging().sendEach(messages, false);
+
+        if (response.successCount > 0) {
             console.log('푸시 알림을 성공적으로 보냈습니다.');
         } else {
             console.log('푸시 알림을 실패했습니다.');
         }
     } catch (e) {
         if (e.response) {
-            // 서버 응답이 있는 경우
             console.log('Response data:', e.response.data);
             console.log('Response status:', e.response.status);
             console.log('Response headers:', e.response.headers);
         } else if (e.request) {
-            // 요청이 만들어졌으나 서버로부터 응답이 없는 경우
             console.log('Request data:', e.request);
         } else {
-            // 요청을 설정하는 도중에 오류가 발생한 경우
             console.log('Error message:', e.message);
         }
         console.log('Error config:', e.config);
