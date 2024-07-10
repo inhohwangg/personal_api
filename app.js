@@ -7,6 +7,7 @@ const todoRouters = require('./controller/todo')
 const pushNotification = require('./controller/push-notification')
 const authRouter = require('./controller/kakao-auth')
 const webhook = require('./controller/webhook-handler')
+const signage = require('./controller/signage')
 // const session = require('express-session')
 // const { passport } = require('./controller/auth-middleware')
 require('dotenv').config();
@@ -27,7 +28,8 @@ app.use(bodyParser.json());
 app.use('/api/users', userRouters);
 app.use('/api/todo', todoRouters);
 app.use('/api/push', pushNotification);
-app.use('/api/webhook',webhook);
+app.use('/api/webhook', webhook);
+app.use('/api/signage', signage);
 // app.use('/api/kakao', authRouter)
 
 app.use((req, res, next) => {
