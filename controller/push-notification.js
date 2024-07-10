@@ -179,8 +179,8 @@ async function sendPush(tokens) {
                                 },
                             },
                         },
-                        token: tokens,
                     },
+                    token: tokens,
                 },
             },
             {
