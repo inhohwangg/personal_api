@@ -46,9 +46,7 @@ router.get('/', async (req, res) => {
 			status: 200,
 			message: 'signage data read',
 			data: {
-				'signage': {
-					result
-				}
+				rows: result.rows[0]
 			}
 		})
 	} catch (e) {
