@@ -11,7 +11,7 @@ const axios = require('axios');
 
 app.use(bodyParser.json())
 
-const serviceAccount = require(path.join(__dirname, 'google-services.json'));
+const serviceAccount = require(path.join(__dirname, 'serviceAccountKey.json'));
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
