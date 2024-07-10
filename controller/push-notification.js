@@ -176,8 +176,8 @@ async function sendPush(tokens) {
                             },
                         },
                     },
-                    token: tokens,  // 토큰이 메시지 객체의 최상위 레벨에 위치해야 함
                 },
+                tokens: tokens  // 여러 토큰을 보낼 때 사용
             },
             {
                 headers: {
@@ -208,5 +208,6 @@ async function sendPush(tokens) {
         console.log('Error config:', e.config);
     }
 }
+
 
 module.exports = router;
