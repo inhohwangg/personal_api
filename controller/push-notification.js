@@ -64,8 +64,6 @@ router.post('/send-notification', async (req, res) => {
         const result = await pool.query(query, values);
         const tokens = result.rows.map(row => row.fcmtoken);
 
-        console.log('Tokens:', tokens);
-
         if (tokens.length === 0) {
             return res.status(400).send('No token found');
         }
@@ -74,12 +72,12 @@ router.post('/send-notification', async (req, res) => {
             notification: {
                 title: title,
                 body: body,
+                icon: icon,
             },
             android: {
                 priority: 'high',
                 notification: {
                     click_action: 'FLUTTER_NOTIFICATION_CLICK',
-                    icon: icon
                 },
             },
             apns: {
