@@ -72,12 +72,12 @@ router.post('/send-notification', async (req, res) => {
             notification: {
                 title: title,
                 body: body,
-                icon: icon,
             },
             android: {
                 priority: 'high',
                 notification: {
                     click_action: 'FLUTTER_NOTIFICATION_CLICK',
+                    icon: icon
                 },
             },
             apns: {
@@ -101,6 +101,7 @@ router.post('/send-notification', async (req, res) => {
                 if (response.successCount > 0) {
                     res.status(200).send('Push notification sent successfully');
                 } else {
+                    console.error('Failed to send push notification', response);
                     res.status(500).send('Failed to send push notification');
                 }
             })
