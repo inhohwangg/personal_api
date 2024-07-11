@@ -55,7 +55,7 @@ router.post('/save-token', async (req, res) => {
 
 //* 특정 사용자에게 알람 보내기 
 router.post('/send-notification', async (req, res) => {
-    const { userName, title, body } = req.body;
+    const { userName, title, body, icon } = req.body;
 
     try {
         const query = `SELECT fcmtoken FROM push_noti WHERE username = $1`;
@@ -79,6 +79,7 @@ router.post('/send-notification', async (req, res) => {
                 priority: 'high',
                 notification: {
                     click_action: 'FLUTTER_NOTIFICATION_CLICK',
+                    icon: icon
                 },
             },
             apns: {
