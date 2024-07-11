@@ -77,7 +77,6 @@ router.post('/send-notification', async (req, res) => {
                 priority: 'high',
                 notification: {
                     click_action: 'FLUTTER_NOTIFICATION_CLICK',
-                    icon: icon
                 },
             },
             apns: {
