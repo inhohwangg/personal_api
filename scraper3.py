@@ -67,22 +67,20 @@ for day in days:
     try:
         # 날짜 정보를 찾기 위해 다양한 방법 시도
         day_text = day.find_element(By.TAG_NAME, 'a').text
-        # 이벤트 요소들을 찾는 방법
-        try:
-            events = WebDriverWait(driver, 10).until(
-                EC.presence_of_all_elements_located((By.CLASS_NAME, 'rbc-event-content'))
-            )
-        except:
-            events = []
+        day_date = f'{month_year}.{day_text}'
+        print(f"Processing day: {day_date}")  # Debugging line to see the day being processed
 
-        if not events:
-            print("No events found for this day.")
+        # 이벤트 요소들을 찾기
+        events = day.find_elements(By.XPATH, ".//div[contains(@class, 'rbc-event-content')]")
+        print(f"Found {len(events)} events for this day.")  # Debugging line to see number of events
+
         for event in events:
-            event_title = event.get_attribute('title')
+            event_title = event.text
+            print(f"Found event: {event_title}")  # Debugging line to see event title
             if event_title and '[' in event_title:
                 if event_title not in event_titles:
                     event_titles.add(event_title)
-                    schedule_data.append({'date': f'{month_year}.{day_text}', 'event': event_title})
+                    schedule_data.append({'date': day_date, 'event': event_title})
     except Exception as e:
         print(f"Error processing day: {e}")
 

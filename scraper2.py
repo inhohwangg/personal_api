@@ -59,40 +59,25 @@ if not days:
 else:
     print(f"Found {len(days)} days elements.")
 
-# Set to hold unique schedule data
-event_titles = set()
-schedule_data = []
+# 날짜 데이터 저장
+dates = []
 
 for day in days:
     try:
-        # 날짜 정보를 찾기 위해 다양한 방법 시도
         day_text = day.find_element(By.TAG_NAME, 'a').text
-        # 이벤트 요소들을 찾는 방법
-        try:
-            events = WebDriverWait(driver, 10).until(
-                EC.presence_of_all_elements_located((By.CLASS_NAME, 'rbc-event-content'))
-            )
-        except:
-            events = []
-
-        if not events:
-            print("No events found for this day.")
-        for event in events:
-            event_title = event.get_attribute('title')
-            if event_title and '[' in event_title:
-                if event_title not in event_titles:
-                    event_titles.add(event_title)
-                    schedule_data.append({'date': f'{month_year}.{day_text}', 'event': event_title})
+        date = f'{month_year}.{day_text}'
+        dates.append(date)
+        print(f"Found date: {date}")  # Debugging line to see the date
     except Exception as e:
         print(f"Error processing day: {e}")
 
-print(schedule_data)  # 데이터 출력
+print(dates)  # 날짜 데이터 출력
 
 # JSON 파일로 저장
-with open('schedules.json', 'w', encoding='utf-8') as f:
-    json.dump(schedule_data, f, ensure_ascii=False, indent=4)
+with open('dates.json', 'w', encoding='utf-8') as f:
+    json.dump(dates, f, ensure_ascii=False, indent=4)
 
 # 브라우저 종료
 driver.quit()
 
-print("Scraping complete. Data saved to schedules.json")
+print("Scraping complete. Dates saved to dates.json")
