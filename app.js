@@ -8,6 +8,7 @@ const pushNotification = require('./controller/push-notification')
 const authRouter = require('./controller/kakao-auth')
 const webhook = require('./controller/webhook-handler')
 const signage = require('./controller/signage')
+const {exec} = require('child_process')
 // const session = require('express-session')
 // const { passport } = require('./controller/auth-middleware')
 require('dotenv').config();
@@ -56,6 +57,18 @@ app.put('/user', (req, res) => {
 app.delete('/user', (req, res) => {
     res.send('Got a DELETE request at /user');
 });
+
+app.get("/api/scrape", (req,res)=> {
+    exec('python scraper.py', (error, stdout, stderr) => {
+        if (error) {
+            console.error('exec error: ${error}')
+            return res.status(500).send(error)
+        }
+        console.log(`stdout: ${stdout}`)
+        console.error(`stderr: ${stderr}`)
+        res.send(stdout)
+    })
+})
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
