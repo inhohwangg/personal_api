@@ -29,20 +29,20 @@ router.get('/status', (req, res) => {
 })
 
 // todo_list 만들기
-router.post('/', upload.single('image'), async (req, res) => {
+router.post('/', upload.single('images', 10), async (req, res) => {
 	try {
 		const { title, description } = req.body;
 		const imageFile = req.file;
 
-		if (!imageFile) {
-			return res.status(400).json({ error: 'Image file is required' })
-		}
+		// if (!imageFile) {
+		// 	return res.status(400).json({ error: 'Image file is required' })
+		// }
 
-		const imageUrl = `https://api.fappworkspace.store/files/${imageFile.filename}`;
+		const imageUrls = imageFile.map(file => `https://api.fappworkspace.store/files/${file.filename}`)
 
 		const result = await pool.query(
-			'INSERT INTO todo_list (title, description, image_name, image_size, image_url) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-			[title, description, imageFile.filename, imageFile.size, imageUrl]
+			'INSERT INTO todo_list (title, description, image_urls) VALUES ($1, $2, $3) RETURNING *',
+			[title, description, JSON.stringify(imageUrls)]
 		);
 
 		res.json(result.rows[0])
