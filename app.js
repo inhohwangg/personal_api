@@ -8,7 +8,7 @@ const pushNotification = require('./controller/push-notification')
 const authRouter = require('./controller/kakao-auth')
 const webhook = require('./controller/webhook-handler')
 const signage = require('./controller/signage')
-const {exec} = require('child_process')
+const { exec } = require('child_process')
 // const session = require('express-session')
 // const { passport } = require('./controller/auth-middleware')
 require('dotenv').config();
@@ -25,6 +25,9 @@ app.use(bodyParser.json());
 // passport 초기화 및 세션 사용 설정 추가
 // app.use(passport.initialize());
 // app.use(passport.session());
+
+// 정적 파일 제공
+app.use('/uploads', express.static('uploads'));
 
 app.use('/api/users', userRouters);
 app.use('/api/todo', todoRouters);
@@ -58,7 +61,7 @@ app.delete('/user', (req, res) => {
     res.send('Got a DELETE request at /user');
 });
 
-app.get("/api/scrape", (req,res)=> {
+app.get("/api/scrape", (req, res) => {
     exec('python scraper.py', (error, stdout, stderr) => {
         if (error) {
             console.error('exec error: ${error}')
