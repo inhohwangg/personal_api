@@ -3,7 +3,6 @@ const router = express.Router();
 const bodyParser = require('body-parser')
 const crypto = require('crypto');
 const {exec} = require('child_process')
-const SECRET = 'your_secret'; // GitHub 웹훅 비밀 토큰
 
 // router.use(bodyParser.json({
 //     verify: (req, res, buf, encoding) => {
