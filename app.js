@@ -27,7 +27,7 @@ app.use(bodyParser.json());
 // app.use(passport.session());
 
 // 정적 파일 제공
-app.use('/uploads', express.static('uploads'));
+app.use('/files', express.static('uploads'));
 
 app.use('/api/users', userRouters);
 app.use('/api/todo', todoRouters);

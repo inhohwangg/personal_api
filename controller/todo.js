@@ -37,7 +37,7 @@ router.post('/', upload.single('image'), async (req, res) => {
 			return res.status(400).json({ error: 'Image file is required' })
 		}
 
-		const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${imageFile.filename}`;
+		const imageUrl = `https://api.fappworkspace.store/files/${imageFile.filename}`;
 
 		const result = await pool.query(
 			'INSERT INTO todo_list (title, description, image_name, image_size, image_url) VALUES ($1, $2, $3, $4, $5) RETURNING *',
