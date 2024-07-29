@@ -26,7 +26,7 @@ router.get('/status', async (req, res) => {
 //* userName , fcmToken 저장
 router.post('/save-token', async (req, res) => {
     try {
-        const { userName, fcmToken } = req.body;
+        const { userName, fcmToken, serviceLabel } = req.body;
         const id = uuidv4();
 
         // FCM 토큰이 존재하는지 확인
@@ -36,14 +36,15 @@ router.post('/save-token', async (req, res) => {
 
         if (checkResult.rows.length === 0) {
             // FCM 토큰이 존재하지 않으면 새로운 레코드 추가
-            const insertQuery = 'INSERT INTO push_noti (_id, username, fcmtoken) VALUES ($1, $2, $3)';
-            const insertValues = [id, userName, fcmToken];
+            const insertQuery = 'INSERT INTO push_noti (_id, username, fcmtoken, serviceLabel) VALUES ($1, $2, $3, $4)';
+            const insertValues = [id, userName, fcmToken, serviceLabel];
             await pool.query(insertQuery, insertValues);
 
             res.status(200).send('Token saved');
         } else {
-            const updateQuery = 'UPDATE push_noti SET username=$1 WHERE fcmtoken=$2';
-            const updateValues = [userName, fcmToken];
+            // const updateQuery = 'UPDATE push_noti SET username=$1 WHERE fcmtoken=$2';
+            const updateQuery = 'UPDATE push_noti SET username=$1, serviceLabel=$3 WHERE fcmtoken=$2';
+            const updateValues = [userName, fcmToken,serviceLabel];
             await pool.query(updateQuery, updateValues);
             res.status(200).send('Token already exists');
         }
@@ -55,11 +56,11 @@ router.post('/save-token', async (req, res) => {
 
 //* 특정 사용자에게 알람 보내기 
 router.post('/send-notification', async (req, res) => {
-    const { userName, title, body } = req.body;
+    const { serviceLabel, title, body } = req.body;
 
     try {
-        const query = `SELECT fcmtoken FROM push_noti WHERE username = $1`;
-        const values = [userName];
+        const query = `SELECT fcmtoken FROM push_noti WHERE serviceLabel = $1`;
+        const values = [serviceLabel];
 
         const result = await pool.query(query, values);
         const tokens = result.rows.map(row => row.fcmtoken);
