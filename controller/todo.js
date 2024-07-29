@@ -3,9 +3,24 @@ const router = express.Router();
 const authticateToken = require('./auth-middleware');
 const pool = require('../dbConnection');
 const multer = require('multer');
+const path = require('path')
+const fs = require('fs');
 
 // Multer 설정
-const storage = multer.memoryStorage();
+const storage = multer.diskStorage({
+	destination: function (req, file, cb) {
+		const uploadDir = 'uploads/'
+
+		if (!fs.existsSync(uploadDir)) {
+			fs.mkdirSync(uploadDir);
+		}
+		cb(null, uploadDir);
+	},
+	filename: function (req, file, cb) {
+		const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+		cb(null, uniqueSuffix + path.extname(file.originalname));
+	}
+})
 const upload = multer({ storage: storage });
 
 router.get('/status', (req, res) => {
@@ -18,10 +33,17 @@ router.post('/', upload.single('image'), async (req, res) => {
 		const { title, description } = req.body;
 		const imageFile = req.file;
 
+		if (!imageFile) {
+			return res.status(400).json({ error: 'Image file is required' })
+		}
+
+		const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${imageFile.filename}`;
+
 		const result = await pool.query(
-			'INSERT INTO todo_list (title, description, image_file, image_name, image_size) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-			[title, description, imageFile.buffer, imageFile.originalname, imageFile.size]
+			'INSERT INTO todo_list (title, description, image_name, image_size, image_url) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+			[title, description, imageFile.originalname, imageFile.size, imageUrl]
 		);
+
 		res.json(result.rows[0])
 	} catch (e) {
 		console.log('todo.js --------------> post Error Message :', e);
