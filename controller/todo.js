@@ -13,7 +13,7 @@ router.get('/status', (req, res) => {
 })
 
 // todo_list 만들기
-router.post('/', async (req, res) => {
+router.post('/', upload.single('image'), async (req, res) => {
 	try {
 		const { title, description } = req.body;
 		const imageFile = req.file;
