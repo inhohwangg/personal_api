@@ -29,27 +29,29 @@ router.get('/status', (req, res) => {
 })
 
 // todo_list 만들기
-router.post('/', upload.single('images', 10), async (req, res) => {
+router.post('/', upload.array('images', 10), async (req, res) => { // 'images'로 설정하고 최대 10개의 파일
 	try {
 		const { title, description } = req.body;
-		const imageFile = req.file;
+		const imageFiles = req.files;
 
-		// if (!imageFile) {
-		// 	return res.status(400).json({ error: 'Image file is required' })
-		// }
+		if (!imageFiles || imageFiles.length === 0) {
+			return res.status(400).json({ error: 'At least one image file is required' });
+		}
 
-		const imageUrls = imageFile.map(file => `https://api.fappworkspace.store/files/${file.filename}`)
+		// 이미지 파일 URL 생성
+		const imageUrls = imageFiles.map(file => `https://api.fappworkspace.store/files/${file.filename}`);
 
 		const result = await pool.query(
 			'INSERT INTO todo_list (title, description, image_urls) VALUES ($1, $2, $3) RETURNING *',
 			[title, description, JSON.stringify(imageUrls)]
 		);
 
-		res.json(result.rows[0])
+		res.json(result.rows[0]);
 	} catch (e) {
 		console.log('todo.js --------------> post Error Message :', e);
+		res.status(500).json({ error: e.message });
 	}
-})
+});
 
 
 // todo_list 완료하기
