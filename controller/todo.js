@@ -2,19 +2,25 @@ const express = require('express');
 const router = express.Router();
 const authticateToken = require('./auth-middleware');
 const pool = require('../dbConnection');
+const multer = require('multer');
 
-router.get('/status', (req,res)=> {
-	res.status(200).json({status:200,message:'todo api is work!'})
+// Multer 설정
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+router.get('/status', (req, res) => {
+	res.status(200).json({ status: 200, message: 'todo api is work!' })
 })
 
 // todo_list 만들기
 router.post('/', async (req, res) => {
 	try {
 		const { title, description } = req.body;
+		const imageFile = req.file;
 
 		const result = await pool.query(
-			'INSERT INTO todo_list (title, description) VALUES ($1, $2) RETURNING *',
-			[title, description]
+			'INSERT INTO todo_list (title, description, image_file, image_name, image_size) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+			[title, description, imageFile.buffer, imageFile.originalname, imageFile.size]
 		);
 		res.json(result.rows[0])
 	} catch (e) {
@@ -52,5 +58,7 @@ router.get('/', async (req, res) => {
 		res.status(500).json({ error: e.message });
 	}
 })
+
+
 
 module.exports = router;
