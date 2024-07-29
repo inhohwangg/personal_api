@@ -28,6 +28,7 @@ router.post('/save-token', async (req, res) => {
     try {
         const { userName, fcmToken, serviceLabel } = req.body;
         const id = uuidv4();
+        console.log('Received save-token request with datas:', req.body)
 
         // FCM 토큰이 존재하는지 확인
         const checkQuery = `SELECT _id FROM push_noti WHERE fcmtoken = $1`;
@@ -39,6 +40,7 @@ router.post('/save-token', async (req, res) => {
             const insertQuery = 'INSERT INTO push_noti (_id, username, fcmtoken, serviceLabel) VALUES ($1, $2, $3, $4)';
             const insertValues = [id, userName, fcmToken, serviceLabel];
             await pool.query(insertQuery, insertValues);
+            console.log('Inserted new token with serviceLabel: ', serviceLabel)
 
             res.status(200).send('Token saved');
         } else {
@@ -46,6 +48,7 @@ router.post('/save-token', async (req, res) => {
             const updateQuery = 'UPDATE push_noti SET username=$1, serviceLabel=$3 WHERE fcmtoken=$2';
             const updateValues = [userName, fcmToken,serviceLabel];
             await pool.query(updateQuery, updateValues);
+            console.log('Updated token with serviceLabel: ', serviceLabel)
             res.status(200).send('Token already exists');
         }
     } catch (e) {
@@ -57,6 +60,7 @@ router.post('/save-token', async (req, res) => {
 //* 특정 사용자에게 알람 보내기 
 router.post('/send-notification', async (req, res) => {
     const { serviceLabel, title, body } = req.body;
+    console.log('Received send-notification request with serviceLabel:', serviceLabel)
 
     try {
         const query = `SELECT fcmtoken FROM push_noti WHERE serviceLabel = $1`;
@@ -66,6 +70,7 @@ router.post('/send-notification', async (req, res) => {
         const tokens = result.rows.map(row => row.fcmtoken);
 
         if (tokens.length === 0) {
+            console.log('No token found for serviceLabel: ', serviceLabel)
             return res.status(400).send('No token found');
         }
 
