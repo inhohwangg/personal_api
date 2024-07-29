@@ -41,7 +41,7 @@ router.post('/', upload.single('image'), async (req, res) => {
 
 		const result = await pool.query(
 			'INSERT INTO todo_list (title, description, image_name, image_size, image_url) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-			[title, description, imageFile.originalname, imageFile.size, imageUrl]
+			[title, description, imageFile.filename, imageFile.size, imageUrl]
 		);
 
 		res.json(result.rows[0])
