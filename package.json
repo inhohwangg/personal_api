@@ -12,6 +12,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@sentry/node": "^8.20.0",
+    "@sentry/profiling-node": "^8.20.0",
     "aedes": "^0.51.0",
     "axios": "^1.7.2",
     "bcrypt": "^5.1.1",
