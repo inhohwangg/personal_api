@@ -1,3 +1,5 @@
+require("./instrument")
+
 const express = require('express');
 const app = express();
 const port = 3000;
@@ -9,6 +11,8 @@ const authRouter = require('./controller/kakao-auth')
 const webhook = require('./controller/webhook-handler')
 const signage = require('./controller/signage')
 const { exec } = require('child_process')
+const Sentry = require('@sentry/node')
+
 // const session = require('express-session')
 // const { passport } = require('./controller/auth-middleware')
 require('dotenv').config();
@@ -73,6 +77,17 @@ app.get("/api/scrape", (req, res) => {
     })
 })
 
+Sentry.setupExpressErrorHandler(app)
+
+app.use(function onError(err, req,res,next) {
+    res.statusCode = 500
+    res.end(res.sentry + "\n")
+})
+
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
 });
+
+app.get('/debug-sentry', function mainHandler(req, res) {
+    throw new Error('My first Sentry error!');
+})
