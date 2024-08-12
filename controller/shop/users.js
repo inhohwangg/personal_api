@@ -9,7 +9,7 @@ const pool = require('../../dbConnection')
 // 사용자 생성
 router.post('/create', async (req, res) => {
     try {
-        const { username, email, password, passwordConfirm, role } = req.body;
+        const { username, email, password, role } = req.body;
 
         // 필수 필드 체크
         if (!username || !email || !password || !role) return res.status.json({ message: '모든 필드를 입력해주세요' })
