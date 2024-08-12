@@ -47,7 +47,6 @@ router.post('/create', async (req, res) => {
     }
 })
 
-
 // 로그인
 
 // 사용자 조회
