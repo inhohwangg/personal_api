@@ -10,6 +10,7 @@ const pushNotification = require('./controller/push-notification')
 const authRouter = require('./controller/kakao-auth')
 const webhook = require('./controller/webhook-handler')
 const signage = require('./controller/signage')
+const shopUser = require('./controller/shop/users')
 const { exec } = require('child_process')
 const Sentry = require('@sentry/node')
 
@@ -38,6 +39,7 @@ app.use('/api/todo', todoRouters);
 app.use('/api/push', pushNotification);
 app.use('/api/webhook', webhook);
 app.use('/api/signage', signage);
+app.use('/api/shop/users', shopUser);
 // app.use('/api/kakao', authRouter)
 
 app.use((req, res, next) => {
