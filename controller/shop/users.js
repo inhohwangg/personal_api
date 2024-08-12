@@ -6,7 +6,7 @@ const { v4: uuidv4 } = require('uuid');
 const { authenitication } = require('../auth-middleware')
 const pool = require('../../dbConnection')
 
-router.get('/status',  (req, res) => {
+router.get('/status', (req, res) => {
     res.status(200).json({
         status: '200',
         message: '정상 동작중'
@@ -39,11 +39,10 @@ router.post('/create', async (req, res) => {
 
         const result = await pool.query(`INSERT INTO users (_id, username, email, password, passwordconfirm, role, created_at, updated_at)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`, [_id, username, email, hashedPassword, hashedPassword, role, createdAt, createdAt])
+        res.status(201).json({ statusCode: 200, message: '사용자가 성공적으로 생성되었습니다.', data: result })
     } catch (e) {
-        res.status(500).json({ statusMessage : '서버 에러임',message: e, content: '관리자에게 문의하세요' })
+        res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요' })
         console.log('사용자 생성 실패', e)
-    } finally {
-        res.status(201).json({ statusCode: 200, message: '사용자가 성공적으로 생성되었습니다.', data: result})
     }
 })
 
