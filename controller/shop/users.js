@@ -3,14 +3,12 @@ const router = express.Router()
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
 const { v4: uuidv4 } = require('uuid');
-const { authenitication } = require('../auth-middleware')
+const { authticateToken } = require('../auth-middleware')
 const pool = require('../../dbConnection')
+require('dotenv').config({path: '../../.env.dev'})
 
 router.get('/status', (req, res) => {
-    res.status(200).json({
-        status: '200',
-        message: '정상 동작중'
-    })
+    return res.status(200).json({status: '200',message: '정상 동작중'})
 })
 
 // 사용자 생성
@@ -43,21 +41,141 @@ router.post('/create', async (req, res) => {
 
         const result = await pool.query(`INSERT INTO users (_id, username, email, password, passwordconfirm, role, created_at, updated_at)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`, [_id, username, email, hashedPassword, hashedPassword, role, createdAt, createdAt])
-        res.status(201).json({ statusCode: 200, message: '사용자가 성공적으로 생성되었습니다.', data: result.rows[0] })
+
         console.log(result.rows[0])
+        return res.status(201).json({ statusCode: 200, message: '사용자가 성공적으로 생성되었습니다.', data: result.rows[0] })
     } catch (e) {
-        res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요' })
         console.log('사용자 생성 실패', e)
+        return res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요' })
     }
 })
 
 // 로그인
+router.post('/login', async (req,res)=> {
+    try {
+        const {username, password} = req.body;
 
-// 사용자 조회
+        // 필수 필드 체크
+        if (!username)  res.status(400).json({ statusCode: 400, message:'사용자 이름을 입력해주세요' })
+        if (!password)  res.status(400).json({ statusCode: 400, message:'비밀번호를 입력해주세요' })
+
+        // 사용자 존재 여부 확인
+        const userExistCheck = await pool.query(`SELECT * FROM users WHERE username = $1`, [username])
+        const user = userExistCheck.rows[0]
+
+        if (!user) res.status(400).json({statusCode: 400 , message: '사용자가 존재하지 않습니다.'})
+        
+        const isPasswordMatch = await bcrypt.compare(password, user.password)
+        if (!isPasswordMatch) res.status(400).json({statusCode: 400, message : '비밀번호가 일치하지않습니다.'})
+
+        // 토큰 유효기간 1년
+        const token = jwt.sign({userId: user._id, role: user.role}, process.env.SECRET_KEY, {expiresIn : '1y'})
+
+        return res.status(200).json({statusCode: 200, message: '로그인 성공', token: token})
+
+    }catch (e) {
+        console.log('로그인 실패',e)
+        return res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요' })
+    }
+})
+
+
+// 사용자 전체 조회
+router.get('/', authticateToken,async (req,res)=> {
+    try {
+       const result = await pool.query(`SELECT * FROM users`)
+       return res.status(200).json({statusCode: 200, message : '조회 성공', data : result.rows})
+    }catch (e) {
+        console.log('사용자 조회 실패',e)
+        return res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요' })
+    }
+})
+
+// _id 로 특정 사용자 조회
+router.get('/:_id', authticateToken,async  (req,res)=> {
+    try {
+        const {_id} = req.params;
+        const userExistCheck = await pool.query(`SELECT * FROM users WHERE _id = $1`,[_id])
+        const user = userExistCheck.rows[0]
+        console.log(user)
+        if (!user) return res.status(400).json({statusCode: 400, message : '해당 사용자가 없습니다'})
+
+        return res.status(200).json({statusCode: 200, message  : '조회 성공', data  : user})
+    }catch (e) {
+        console.log('사용자 조회 실패',e)
+        return res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요' })
+    }
+})
 
 // 사용자 정보 수정
+router.put('/update/:_id', authticateToken, async (req,res) => {
+    try {
+        const {_id} = req.params
+        const { email, role } = req.body;
+
+        const userExistCheck = await pool.query(`SELECT * FROM users WHERE _id = $1`, [_id])
+        const user = userExistCheck.rows[0]
+
+        if (!user) return res.status(400).json({statusCode: 400, message : '해당 사용자가 없습니다.'})
+
+        const updateUser = await pool.query(`UPDATE users SET email = $1, role = $2, updated_at = $3, _id = $4`,
+            [email, role, new Date(), _id]
+        )
+        return res.status(200).json({statusCode: 200, message : '사용자 정보 수정', data: updateUser.rows})
+    }catch (e) {
+        console.log('사용자 수정 실패', e)
+        return res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요' })
+    }
+})
+
+// 비밀번호 변경
+router.put('/change-password/:_id', authticateToken, async (req,res)=> {
+    try {
+        const {_id } = req.params;
+        const {currentPassword, newPassword } = req.body;
+
+        if (!currentPassword ||!newPassword ) return res.status(400).json({statusCode: 400, message : '현재 비밀번호와 새 비밀번호는 입력해주세요'})
+
+        const userExistCheck = await pool.query(`SELECT * FROM users WHERE _id=$1`, [_id])
+        const user = userExistCheck.rows[0]
+
+        if (!user) return res.status(400).json({statusCode: 400, message  : '해당 사용자가 없습니다'})
+        
+        // 현재 비밀번호 일치하는지 확인
+        const isPasswordMatch = await bcrypt.compareSync(currentPassword, user.password);
+        
+        if (!isPasswordMatch) return res.status(400).json({statusCode: 400, message : '현재 비밀번호가 일치하지 않습니다.'})
+
+        // 새로운 비밀번호 해시화
+        const newPasswordHash = await bcrypt.hashSync(newPassword, 10);
+
+        // 새로운 비밀번호 업데이트
+        const result = await pool.query(`UPDATE users SET password=$1 updated_at=$2 WHERE _id = $3`, [newPasswordHash, new Date(),_id])
+
+        res.status(200).json({statusCode: 200, message: '비밀번호가 성공적으로 변경 완료되었습니다.', data: result.rows})
+    }catch (e) {
+        console.log('사용자 비밀번호 변경 실패', e)
+        return res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요' })
+    }
+})
 
 // 사용자 정보 삭제
+router.delete('/:id', authticateToken, async (req,res)=> {
+    try {
+        const {_id} = req.params
 
+        const userExistCheck = await pool.query(`SELECT * FROM users WHERE _id=$1`, [_id])
+        const user = userExistCheck.rows[0]
+
+        if (!user) return res.status(400).json({statusCode:400, message:'해당 사용자가 존재하지 않습니다.' })
+        
+        await pool.query(`DELETE FROM users WHERE _id = $1`, [_id])
+
+        return res.status(200).json({statusCode:200, message:'해당 사용자가 성공적으로 삭제되었습니다.'})
+    }catch (e) {
+        console.log('사용자 정보 삭제 실패', e)
+        return res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요' })
+    }
+})
 
 module.exports = router
