@@ -11,7 +11,7 @@ router.get('/status', (req, res) => {
     return res.status(200).json({status: '200',message: '정상 동작중'})
 })
 
-// 사용자 생성
+// 사용자 생성 - OK
 router.post('/create', async (req, res) => {
     try {
         const { username, email, password, role } = req.body;
@@ -50,7 +50,7 @@ router.post('/create', async (req, res) => {
     }
 })
 
-// 로그인
+// 로그인 - OK
 router.post('/login', async (req,res)=> {
     try {
         const {username, password} = req.body;
@@ -80,7 +80,7 @@ router.post('/login', async (req,res)=> {
 })
 
 
-// 사용자 전체 조회
+// 사용자 전체 조회 - OK
 router.get('/', authticateToken,async (req,res)=> {
     try {
        const result = await pool.query(`SELECT * FROM users`)
@@ -91,7 +91,7 @@ router.get('/', authticateToken,async (req,res)=> {
     }
 })
 
-// _id 로 특정 사용자 조회
+// _id 로 특정 사용자 조회 - OK
 router.get('/:_id', authticateToken,async  (req,res)=> {
     try {
         const {_id} = req.params;
@@ -107,23 +107,50 @@ router.get('/:_id', authticateToken,async  (req,res)=> {
     }
 })
 
-// 사용자 정보 수정
-router.put('/update/:_id', authticateToken, async (req,res) => {
+// 사용자 이메일 정보 수정 - OK
+router.put('/email/:_id', authticateToken, async (req,res) => {
     try {
         const {_id} = req.params
-        const { email, role } = req.body;
+        const { email } = req.body;
 
         const userExistCheck = await pool.query(`SELECT * FROM users WHERE _id = $1`, [_id])
         const user = userExistCheck.rows[0]
 
+        // 사용자 존재 여부 체크
         if (!user) return res.status(400).json({statusCode: 400, message : '해당 사용자가 없습니다.'})
+        
+        // 이메일 중복체크
+        const emailExistCheck = await pool.query(`SELECT * FROM users WHERE email = $1`, [email])
+        if (emailExistCheck.rows.length > 0) return res.status(409).json({statusCode: 409, message   : '이미 존재하는 이메일입니다.'})
 
-        const updateUser = await pool.query(`UPDATE users SET email = $1, role = $2, updated_at = $3, _id = $4`,
-            [email, role, new Date(), _id]
+        // 이메일 업데이트
+        const updateEmail = await pool.query(`UPDATE users SET email = $1, updated_at = $2 WHERE _id = $3`,
+            [email, new Date(), _id]
         )
-        return res.status(200).json({statusCode: 200, message : '사용자 정보 수정', data: updateUser.rows})
+        return res.status(200).json({statusCode: 200, message : '사용자 이메일 정보 수정 완료', data: updateEmail})
     }catch (e) {
         console.log('사용자 수정 실패', e)
+        return res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요' })
+    }
+})
+
+// 사용자 권한 정보 수정
+router.put('/role/:_id', authticateToken, async (req,res)=> {
+    try {
+        const {_id} = req.params
+        const {role} = req.body
+
+        const userExistCheck = await pool.query(`SELECT * FROM users WHERE _id = $1`, [_id])
+        const user = userExistCheck.rows[0]
+        // 사용자 존재 여부 체크
+        if (!user) return res.status(400).json({statusCode: 400, message  : '해당 사용자가 없습니다.'})
+        
+        // 사용자 업데이트
+        const updateRole = await pool.query(`UPDATE users SET role = $1, updated_at=$2 WHERE _id = $3`, [role, new Date(), _id])
+
+        return res.status(200).json({statusCode: 200, message : '사용자 권한 수정 완료', data: updateRole.rows })
+    }catch (e) {
+        console.log('사용자 권한 수정 실패', e)
         return res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요' })
     }
 })

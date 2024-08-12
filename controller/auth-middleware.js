@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const KakaoStrategy = require('passport-kakao').Strategy;
-
+require('dotenv').config({path: '../.env.dev'})
 // passport.use(new KakaoStrategy({
 // 	clientID: process.env.KAKAO_CLIENT_ID, // 오타 수정: cilentID -> clientID
 // 	callbackURL: process.env.KAKAO_CALL_BACK_URL,
@@ -37,7 +37,7 @@ const authticateToken = (req, res, next) => {
 	// const token = authHeader && authHeader.split(' ')[1];
 	if (!authHeader) return res.sendStatus(401);
 
-	jwt.verify(token, 'secretKey', (err, user) => {
+	jwt.verify(token, process.env.SECRET_KEY, (err, user) => {
 		if (err) return res.sendStatus(403);
 		req.user = user;
 		next();
