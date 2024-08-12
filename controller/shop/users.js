@@ -6,6 +6,13 @@ const { v4: uuidv4 } = require('uuid');
 const { authenitication } = require('../auth-middleware')
 const pool = require('../../dbConnection')
 
+router.get('/status',  (req, res) => {
+    res.status(200).json({
+        status: '200',
+        message: '정상 동작중'
+    })
+})
+
 // 사용자 생성
 router.post('/create', async (req, res) => {
     try {
