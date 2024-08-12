@@ -21,6 +21,10 @@ router.post('/create', async (req, res) => {
         // 필수 필드 체크
         if (!username || !email || !password || !role) return res.status.json({ message: '모든 필드를 입력해주세요' })
 
+        // 이메일 형식 체크
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (!emailRegex.test(email)) return res.status(422).json({ message: '이메일 형식에 맞지 않습니다.' })
+
         // username 중복 체크
         const usernameExistCheck = await pool.query('SELECT * FROM users WHERE username = $1', [username])
         if (usernameExistCheck.rows.length > 0) return res.status(409).json({ message: '이미 존재하는 사용자입니다.' })
