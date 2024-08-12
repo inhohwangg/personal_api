@@ -37,7 +37,7 @@ router.post('/create', async (req, res) => {
 
         const createdAt = new Date();
 
-        const result = await pool.query(`INSERT INTO users (_id, username, email, password, passwordconfirm, role, created_at, update_at)
+        const result = await pool.query(`INSERT INTO users (_id, username, email, password, passwordconfirm, role, created_at, updated_at)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`, [_id, username, email, hashedPassword, hashedPassword, role, createdAt, createdAt])
     } catch (e) {
         res.status(500).json({ statusMessage : '서버 에러임',message: e, content: '관리자에게 문의하세요' })
