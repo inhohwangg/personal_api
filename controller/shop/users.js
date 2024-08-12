@@ -22,11 +22,11 @@ router.post('/create', async (req, res) => {
         if (!username || !email || !password || !role) return res.status.json({ message: '모든 필드를 입력해주세요' })
 
         // username 중복 체크
-        const usernameExistCheck = await db.query('SELECT * FROM users WHERE username = $1', [username])
+        const usernameExistCheck = await pool.query('SELECT * FROM users WHERE username = $1', [username])
         if (usernameExistCheck.rows.length > 0) return res.status(409).json({ message: '이미 존재하는 사용자입니다.' })
 
         // email 중복 체크
-        const emailExistCheck = await db.query('SELECT * FROM users WHERE email = $1', [email])
+        const emailExistCheck = await pool.query('SELECT * FROM users WHERE email = $1', [email])
         if (emailExistCheck.rows.length > 0) return res.status(409).json({ message: '이미 존재하는 이메일입니다.' })
 
         // 비밀번호 해시화
@@ -37,7 +37,7 @@ router.post('/create', async (req, res) => {
 
         const createdAt = new Date();
 
-        const result = await db.query(`INSERT INTO users (_id, username, email, password, passwordConfirm, role, created_at, update_at)
+        const result = await pool.query(`INSERT INTO users (_id, username, email, password, passwordConfirm, role, created_at, update_at)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`, [_id, username, email, hashedPassword, hashedPassword, role, createdAt, createdAt])
     } catch (e) {
         res.status(500).json({ statusMessage : '서버 에러임',message: e, content: '관리자에게 문의하세요' })
