@@ -39,7 +39,8 @@ router.post('/create', async (req, res) => {
 
         const result = await pool.query(`INSERT INTO users (_id, username, email, password, passwordconfirm, role, created_at, updated_at)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`, [_id, username, email, hashedPassword, hashedPassword, role, createdAt, createdAt])
-        res.status(201).json({ statusCode: 200, message: '사용자가 성공적으로 생성되었습니다.', data: result })
+        res.status(201).json({ statusCode: 200, message: '사용자가 성공적으로 생성되었습니다.', data: result.rows[0] })
+        console.log(result.rows[0])
     } catch (e) {
         res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요' })
         console.log('사용자 생성 실패', e)
