@@ -46,7 +46,7 @@ router.post('/create', async (req, res) => {
         return res.status(201).json({ statusCode: 200, message: '사용자가 성공적으로 생성되었습니다.', data: result.rows[0] })
     } catch (e) {
         console.log('사용자 생성 실패', e)
-        return res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요' })
+        return res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요', apiErrorMessage: '사용자 생성 실패' })
     }
 })
 
@@ -75,7 +75,7 @@ router.post('/login', async (req,res)=> {
 
     }catch (e) {
         console.log('로그인 실패',e)
-        return res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요' })
+        return res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요', apiErrorMessage: '로그인 실패' })
     }
 })
 
@@ -87,7 +87,7 @@ router.get('/', authticateToken,async (req,res)=> {
        return res.status(200).json({statusCode: 200, message : '조회 성공', data : result.rows})
     }catch (e) {
         console.log('사용자 조회 실패',e)
-        return res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요' })
+        return res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요', apiErrorMessage: '사용자 조회 실패' })
     }
 })
 
@@ -102,8 +102,8 @@ router.get('/:_id', authticateToken,async  (req,res)=> {
 
         return res.status(200).json({statusCode: 200, message  : '조회 성공', data  : user})
     }catch (e) {
-        console.log('사용자 조회 실패',e)
-        return res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요' })
+        console.log('특정 사용자 조회 실패',e)
+        return res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요', apiErrorMessage: '특정 사용자 조회 실패' })
     }
 })
 
@@ -130,7 +130,7 @@ router.put('/email/:_id', authticateToken, async (req,res) => {
         return res.status(200).json({statusCode: 200, message : '사용자 이메일 정보 수정 완료', data: updateEmail.rows})
     }catch (e) {
         console.log('사용자 수정 실패', e)
-        return res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요' })
+        return res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요', apiErrorMessage: '사용자 수정 실패' })
     }
 })
 
@@ -153,7 +153,7 @@ router.put('/role/:_id', authticateToken, async (req,res)=> {
         return res.status(200).json({statusCode: 200, message : '사용자 권한 수정 완료', data: updateRole.rows })
     }catch (e) {
         console.log('사용자 권한 수정 실패', e)
-        return res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요' })
+        return res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요', apiErrorMessage: '사용자 권한 수정 실패' })
     }
 })
 
@@ -186,7 +186,7 @@ router.put('/change-password/:_id', authticateToken, async (req,res)=> {
         res.status(200).json({statusCode: 200, message: '비밀번호가 성공적으로 변경 완료되었습니다.', data: result.rows})
     }catch (e) {
         console.log('사용자 비밀번호 변경 실패', e)
-        return res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요' })
+        return res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요', apiErrorMessage: '사용자 비밀번호 변경 실패' })
     }
 })
 
@@ -205,7 +205,7 @@ router.delete('/:_id', authticateToken, async (req,res)=> {
         return res.status(200).json({statusCode:200, message:'해당 사용자가 성공적으로 삭제되었습니다.'})
     }catch (e) {
         console.log('사용자 정보 삭제 실패', e)
-        return res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요' })
+        return res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요', apiErrorMessage: '사용자 정보 삭제 실패' })
     }
 })
 
