@@ -11,6 +11,7 @@ const authRouter = require('./controller/kakao-auth')
 const webhook = require('./controller/webhook-handler')
 const signage = require('./controller/signage')
 const shopUser = require('./controller/shop/users')
+const category = require('./controller/shop/category')
 const { exec } = require('child_process')
 const Sentry = require('@sentry/node')
 
@@ -40,6 +41,7 @@ app.use('/api/push', pushNotification);
 app.use('/api/webhook', webhook);
 app.use('/api/signage', signage);
 app.use('/api/shop/users', shopUser);
+app.use('/api/shop/category', category);
 // app.use('/api/kakao', authRouter)
 
 app.use((req, res, next) => {
