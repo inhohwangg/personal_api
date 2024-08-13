@@ -12,6 +12,7 @@ const webhook = require('./controller/webhook-handler')
 const signage = require('./controller/signage')
 const shopUser = require('./controller/shop/users')
 const category = require('./controller/shop/category')
+const orders = require('./controller/shop/orders')
 const { exec } = require('child_process')
 const Sentry = require('@sentry/node')
 
@@ -42,6 +43,7 @@ app.use('/api/webhook', webhook);
 app.use('/api/signage', signage);
 app.use('/api/shop/users', shopUser);
 app.use('/api/shop/category', category);
+app.use('/api/shop/orders', orders);
 // app.use('/api/kakao', authRouter)
 
 app.use((req, res, next) => {
@@ -83,7 +85,7 @@ app.get("/api/scrape", (req, res) => {
 
 Sentry.setupExpressErrorHandler(app)
 
-app.use(function onError(err, req,res,next) {
+app.use(function onError(err, req, res, next) {
     res.statusCode = 500
     res.end(res.sentry + "\n")
 })
