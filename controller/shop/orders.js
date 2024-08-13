@@ -20,7 +20,8 @@ router.post('/create', authticateToken, async (req, res) => {
 
         const orderCreate = await pool.query('INSERT INTO orders (_id, userId, pay_method, address, delivery_cost, tracking_number, order_mount, order_status, created_at, updated_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *',
              [order_id, userId, pay_method, address, delivery_cost, tracking_number, order_mount, order_status,new Date(), new Date()])
-        
+
+        res.status(201).json({statusCode: 201, message:'주문이 성공적으로 등록되었습니다.', content: orderCreate.rows})
     } catch (e) {
         console.log('order 생성 에러', e)
         return res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요', apiErorMessage: 'order 생성 에러' })
