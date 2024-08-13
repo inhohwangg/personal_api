@@ -134,7 +134,7 @@ router.put('/email/:_id', authticateToken, async (req,res) => {
     }
 })
 
-// 사용자 권한 정보 수정
+// 사용자 권한 정보 수정 - OK
 router.put('/role/:_id', authticateToken, async (req,res)=> {
     try {
         const {_id} = req.params
@@ -155,7 +155,7 @@ router.put('/role/:_id', authticateToken, async (req,res)=> {
     }
 })
 
-// 비밀번호 변경
+// 비밀번호 변경 - OK
 router.put('/change-password/:_id', authticateToken, async (req,res)=> {
     try {
         const {_id } = req.params;
@@ -177,7 +177,7 @@ router.put('/change-password/:_id', authticateToken, async (req,res)=> {
         const newPasswordHash = await bcrypt.hashSync(newPassword, 10);
 
         // 새로운 비밀번호 업데이트
-        const result = await pool.query(`UPDATE users SET password=$1 updated_at=$2 WHERE _id = $3`, [newPasswordHash, new Date(),_id])
+        const result = await pool.query(`UPDATE users SET password=$1, passwordconfirm=$2,updated_at=$3 WHERE _id = $4`, [newPasswordHash,newPasswordHash, new Date(),_id])
 
         res.status(200).json({statusCode: 200, message: '비밀번호가 성공적으로 변경 완료되었습니다.', data: result.rows})
     }catch (e) {
@@ -186,8 +186,8 @@ router.put('/change-password/:_id', authticateToken, async (req,res)=> {
     }
 })
 
-// 사용자 정보 삭제
-router.delete('/:id', authticateToken, async (req,res)=> {
+// 사용자 정보 삭제 - OK
+router.delete('/:_id', authticateToken, async (req,res)=> {
     try {
         const {_id} = req.params
 
