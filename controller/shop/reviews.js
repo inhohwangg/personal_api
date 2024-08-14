@@ -3,7 +3,7 @@ const router = express.Router();
 const pool = require('../../dbConnection')
 const { v4: uuidv4 } = require('uuid');
 const { authticateToken } = require('../auth-middleware')
-require('detenv').config({path: '../../.env.dev'})
+require('dotenv').config({ path: '../../.env.dev' })
 
 // reviews 생성
 
