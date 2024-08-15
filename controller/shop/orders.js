@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../../dbConnection')
-const { create } = require('../../utils/crud')
+const { create, fullGet, someGet } = require('../../utils/crud')
 const { userCheck } = require('../../utils/user-check')
 const { v4: uuidv4 } = require('uuid');
 const { authticateToken } = require('../auth-middleware')
@@ -40,7 +40,7 @@ router.get('/:_id', async (req, res) => {
 
         if (!id) return res.status(400).json({ statusCode: 400, message: `${_id} 가 존재하지 않습니다.` })
 
-        const result = await pool.query('SELECT * FROM orders WHERE _id = $1', [_id])
+        const result = await someGet('orders', ['_id'], [_id], res)
 
         res.status(200).json({ statusCode: 200, message: 'success', data: result.rows })
     } catch (e) {
@@ -49,10 +49,10 @@ router.get('/:_id', async (req, res) => {
     }
 })
 
-// order 조회
+// order 전체 조회
 router.get('/', async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM orders')
+        const result = await fullGet('orders')
         res.status(200).json({ statusCode: 200, message: 'orders 전체 조회 성공', data: result.rows })
     }
     catch (e) {
