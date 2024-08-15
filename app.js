@@ -13,6 +13,11 @@ const signage = require('./controller/signage')
 const shopUser = require('./controller/shop/users')
 const category = require('./controller/shop/category')
 const orders = require('./controller/shop/orders')
+const products = require('./controller/shop/products')
+const order_items = require('./controller/shop/order_items')
+const carts = require('./controller/shop/carts')
+const reviews = require('./controller/shop/reviews')
+const inquirys = require('./controller/shop/inquirys')
 const { exec } = require('child_process')
 const Sentry = require('@sentry/node')
 
@@ -44,6 +49,11 @@ app.use('/api/signage', signage);
 app.use('/api/shop/users', shopUser);
 app.use('/api/shop/category', category);
 app.use('/api/shop/orders', orders);
+app.use('/api/shop/products', products);
+app.use('/api/shop/order_items', order_items);
+app.use('/api/shop/carts', carts);
+app.use('/api/shop/reviews', reviews);
+app.use('/api/shop/inquirys', inquirys);
 // app.use('/api/kakao', authRouter)
 
 app.use((req, res, next) => {

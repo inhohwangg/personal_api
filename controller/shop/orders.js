@@ -1,27 +1,27 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../../dbConnection')
-const { create } = require('../../utils/create')
+const { create } = require('../../utils/crud')
 const { userCheck } = require('../../utils/user-check')
 const { v4: uuidv4 } = require('uuid');
 const { authticateToken } = require('../auth-middleware')
 require('dotenv').config({ path: '../../.env.dev' })
 
-// order 생성
-router.post('/create', authticateToken, async (req, res) => {
+// order 생성 - OK
+router.post('/create/:userid', authticateToken, async (req, res) => {
     try {
-        const { userId } = req.params
+        const { userid } = req.params
         const { pay_method, address, delivery_cost, tracking_number, order_count, order_status } = req.body
 
-        const user = userCheck('users', 'username', userId)
+        const user = userCheck('users', 'username', userid)
         if (!user) return res.status(400).json({ statusCode: 400, message: '유저가 존재하지 않습니다', content: '유저를 찾아주세요', apiErrorMessage: '해당 유저가 없음' })
 
         const order_id = uuidv4()
 
         if (!pay_method || !address || !delivery_cost || !tracking_number || !order_count || !order_status) res.status.json({ statusCode: 400, message: '필수항목이 누락되었습니다.' })
 
-        const columns = ['_id', 'userId', 'pay_method', 'address', 'delivery_cost', 'tracking_number', 'order_count', 'order_status', 'created_at', 'updated_at']
-        const values = [order_id, userId, pay_method, address, delivery_cost, tracking_number, order_count, order_status, new Date(), new Date()]
+        const columns = ['_id', 'userid', 'pay_method', 'address', 'delivery_cost', 'tracking_number', 'order_count', 'order_status', 'created_at', 'updated_at']
+        const values = [order_id, userid, pay_method, address, delivery_cost, tracking_number, order_count, order_status, new Date(), new Date()]
         const result = await create('orders', columns, values, res)
 
         res.status(201).json({ statusCode: 201, message: '주문이 성공적으로 등록되었습니다.', content: result.rows })
