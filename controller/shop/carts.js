@@ -7,7 +7,7 @@ const { v4: uuidv4 } = require('uuid');
 const { authticateToken } = require('../auth-middleware')
 require('dotenv').config({ path: '../../.env.dev' })
 
-// 장바구니 생성 -OK
+// 장바구니 생성 - API TEST OK
 router.post('/create/:userid/:productid', authticateToken, async (req, res) => {
 	try {
 		const { userid, productid } = req.params
@@ -26,7 +26,7 @@ router.post('/create/:userid/:productid', authticateToken, async (req, res) => {
 	}
 })
 
-// 장바구니 전체 조회 -OK
+// 장바구니 전체 조회 -API TEST OK
 router.get('/', authticateToken, async (req, res) => {
 	try {
 		const result = await fullGet('carts', res)
@@ -37,7 +37,7 @@ router.get('/', authticateToken, async (req, res) => {
 	}
 })
 
-// 특정 장바구니 조회 -OK
+// 특정 장바구니 조회 -API TEST OK
 router.get('/:_id', authticateToken, async (req, res) => {
 	try {
 		const { _id } = req.params
@@ -49,7 +49,7 @@ router.get('/:_id', authticateToken, async (req, res) => {
 	}
 })
 
-// 장바구니 수정
+// 장바구니 수정 - API TEST OK
 router.put('/:_id', authticateToken, async (req, res) => {
 	try {
 		const { _id } = req.params
@@ -62,7 +62,7 @@ router.put('/:_id', authticateToken, async (req, res) => {
 	}
 })
 
-// 장바구니 삭제
+// 장바구니 삭제 - API TEST OK
 router.delete('/:_id', authticateToken, async (req, res) => {
 	try {
 		const { _id } = req.params

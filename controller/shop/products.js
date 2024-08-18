@@ -6,12 +6,11 @@ const { v4: uuidv4 } = require('uuid');
 const { authticateToken } = require('../auth-middleware');
 require('dotenv').config({ path: '../../.env.dev' });
 
-// product 생성
+// product 생성 - API TEST OK
 router.post('/create/:categoryid/:userid', authticateToken, async (req, res) => {
 	try {
 		const { categoryid, userid } = req.params; // req.query가 아닌 req.params 사용
 		const { product_name, product_desc, product_price, product_count } = req.body;
-
 		const categoryCheck = await pool.query('SELECT * FROM category WHERE _id = $1', [categoryid]);
 		if (categoryCheck.rows.length === 0) {
 			return res.status(400).json({ statusCode: 400, message: '유효하지 않은 categoryId입니다.' });
@@ -34,7 +33,7 @@ router.post('/create/:categoryid/:userid', authticateToken, async (req, res) => 
 	}
 });
 
-// product 전체 조회
+// product 전체 조회 - API TEST OK
 router.get('/', authticateToken, async (req, res) => {
 	try {
 		const result = await fullGet('products');
@@ -45,7 +44,7 @@ router.get('/', authticateToken, async (req, res) => {
 	}
 })
 
-// 특정 product 조회
+// 특정 product 조회 - API TEST OK
 router.get('/:_id', authticateToken, async (req, res) => {
 	try {
 		const { _id } = req.params;
@@ -58,7 +57,7 @@ router.get('/:_id', authticateToken, async (req, res) => {
 	}
 })
 
-// product 수정
+// product 수정 - API TEST OK
 router.put('/:_id', authticateToken, async (req, res) => {
 	try {
 		const { _id } = req.params;
@@ -73,7 +72,7 @@ router.put('/:_id', authticateToken, async (req, res) => {
 	}
 })
 
-// product 삭제
+// product 삭제 - API TEST OK
 router.delete('/:_id', authticateToken, async (req, res) => {
 	try {
 		const { _id } = req.params;

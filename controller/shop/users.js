@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
+const { create, fullGet, someGet, remove, dataEdit } = require('../../utils/crud')
 const { v4: uuidv4 } = require('uuid');
 const { authticateToken } = require('../auth-middleware')
 const pool = require('../../dbConnection')
@@ -11,7 +12,7 @@ router.get('/status', (req, res) => {
     return res.status(200).json({ status: '200', message: '정상 동작중' })
 })
 
-// 사용자 생성 - OK
+// 사용자 생성 - API TEST OK
 router.post('/create', async (req, res) => {
     try {
         const { username, email, password, role } = req.body;
@@ -35,14 +36,11 @@ router.post('/create', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // 고유 식별자 생성
-        const _id = uuidv4()
+        const userId = uuidv4()
 
-        const createdAt = new Date();
-
-        const result = await pool.query(`INSERT INTO users (_id, username, email, password, passwordconfirm, role, created_at, updated_at)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`, [_id, username, email, hashedPassword, hashedPassword, role, createdAt, createdAt])
-
-        console.log(result.rows[0])
+        const columns = ['_id', 'username', 'email', 'password', 'passwordConfirm', 'role', 'created_at', 'updated_at']
+        const values = [userId, username, email, hashedPassword, hashedPassword, role, new Date(), new Date()]
+        const result = await create('users', columns, values, res)
         return res.status(201).json({ statusCode: 200, message: '사용자가 성공적으로 생성되었습니다.', data: result.rows[0] })
     } catch (e) {
         console.log('사용자 생성 실패', e)
@@ -80,10 +78,11 @@ router.post('/login', async (req, res) => {
 })
 
 
-// 사용자 전체 조회 - OK
+// 사용자 전체 조회 - API TEST OK
 router.get('/', authticateToken, async (req, res) => {
     try {
-        const result = await pool.query(`SELECT * FROM users`)
+        const result = await fullGet('users', res)
+        // const result = await pool.query(`SELECT * FROM users`)
         return res.status(200).json({ statusCode: 200, message: '조회 성공', data: result.rows })
     } catch (e) {
         console.log('사용자 조회 실패', e)
@@ -91,16 +90,12 @@ router.get('/', authticateToken, async (req, res) => {
     }
 })
 
-// _id 로 특정 사용자 조회 - OK
+// _id 로 특정 사용자 조회 - API TEST OK
 router.get('/:_id', authticateToken, async (req, res) => {
     try {
         const { _id } = req.params;
-        const userExistCheck = await pool.query(`SELECT * FROM users WHERE _id = $1`, [_id])
-        const user = userExistCheck.rows[0]
-        console.log(user)
-        if (!user) return res.status(400).json({ statusCode: 400, message: '해당 사용자가 없습니다' })
-
-        return res.status(200).json({ statusCode: 200, message: '조회 성공', data: user })
+        const result = await someGet('users', '_id', _id, res);
+        return res.status(200).json({ statusCode: 200, message: '조회 성공', data: result.rows })
     } catch (e) {
         console.log('특정 사용자 조회 실패', e)
         return res.status(500).json({ statusMessage: '서버 에러임', message: e, content: '관리자에게 문의하세요', apiErrorMessage: '특정 사용자 조회 실패' })
