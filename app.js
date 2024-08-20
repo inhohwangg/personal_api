@@ -32,7 +32,9 @@ app.use(bodyParser.json());
 app.use(helmet())
 app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization'],
-    optionsSuccessStatus: 200
+    optionsSuccessStatus: 200,
+    origin: true,
+    credentials: true
 }));
 
 app.options('*', cors());
