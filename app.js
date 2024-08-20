@@ -31,8 +31,11 @@ app.use(bodyParser.urlencoded({ extended: true })); // 'urlcoded'를 'urlencoded
 app.use(bodyParser.json());
 app.use(helmet())
 app.use(cors({
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    optionsSuccessStatus: 200
 }));
+
+app.options('*', cors());
 
 // app.use(session({
 //     secret: '비밀키', // 'secret' 옵션으로 수정
