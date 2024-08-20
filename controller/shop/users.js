@@ -15,10 +15,10 @@ router.get('/status', (req, res) => {
 // 사용자 생성 - API TEST OK
 router.post('/create', async (req, res) => {
     try {
-        const { username, email, password, role } = req.body;
+        const { username, email, password } = req.body;
 
         // 필수 필드 체크
-        if (!username || !email || !password || !role) return res.status.json({ message: '모든 필드를 입력해주세요' })
+        if (!username || !email || !password) return res.status.json({ message: '모든 필드를 입력해주세요' })
 
         // 이메일 형식 체크
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -39,7 +39,7 @@ router.post('/create', async (req, res) => {
         const userId = uuidv4()
 
         const columns = ['_id', 'username', 'email', 'password', 'passwordConfirm', 'role', 'created_at', 'updated_at']
-        const values = [userId, username, email, hashedPassword, hashedPassword, role, new Date(), new Date()]
+        const values = [userId, username, email, hashedPassword, hashedPassword, '사용자', new Date(), new Date()]
         const result = await create('users', columns, values, res)
         return res.status(201).json({ statusCode: 200, message: '사용자가 성공적으로 생성되었습니다.', data: result.rows[0] })
     } catch (e) {

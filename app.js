@@ -20,6 +20,7 @@ const reviews = require('./controller/shop/reviews')
 const inquirys = require('./controller/shop/inquirys')
 const { exec } = require('child_process')
 const Sentry = require('@sentry/node')
+const helmet = require('helmet');
 
 // const session = require('express-session')
 // const { passport } = require('./controller/auth-middleware')
@@ -27,6 +28,7 @@ require('dotenv').config();
 
 app.use(bodyParser.urlencoded({ extended: true })); // 'urlcoded'를 'urlencoded'로 수정
 app.use(bodyParser.json());
+app.use(helmet())
 
 // app.use(session({
 //     secret: '비밀키', // 'secret' 옵션으로 수정
