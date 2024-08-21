@@ -8,7 +8,7 @@ const upload = require('../../utils/multer')
 require('dotenv').config({ path: '../../.env.dev' });
 
 // product 생성 - API TEST OK
-router.post('/create/:categoryid/:userid', upload.array('images', 10), authticateToken, async (req, res) => {
+router.post('/create/:categoryid/:userid', upload.any(), authticateToken, async (req, res) => {
 	try {
 		const { categoryid, userid } = req.params; // req.query가 아닌 req.params 사용
 		const { product_name, product_desc, product_price, product_count } = req.body;
