@@ -4,13 +4,20 @@ const pool = require('../../dbConnection');
 const { create, fullGet, someGet, remove, dataEdit } = require('../../utils/crud');
 const { v4: uuidv4 } = require('uuid');
 const { authticateToken } = require('../auth-middleware');
+const upload = require('../../utils/multer')
 require('dotenv').config({ path: '../../.env.dev' });
 
 // product 생성 - API TEST OK
-router.post('/create/:categoryid/:userid', authticateToken, async (req, res) => {
+router.post('/create/:categoryid/:userid', upload.array('images', 10), authticateToken, async (req, res) => {
 	try {
 		const { categoryid, userid } = req.params; // req.query가 아닌 req.params 사용
 		const { product_name, product_desc, product_price, product_count } = req.body;
+
+		const imageFiles = req.files
+
+		// 이미지 파일 URL 생성
+		const imageUrls = imageFiles.map(file => `${process.env.BASEURL}/files/${file.filename}`)
+
 		const categoryCheck = await pool.query('SELECT * FROM category WHERE _id = $1', [categoryid]);
 		if (categoryCheck.rows.length === 0) {
 			return res.status(400).json({ statusCode: 400, message: '유효하지 않은 categoryId입니다.' });
@@ -22,8 +29,8 @@ router.post('/create/:categoryid/:userid', authticateToken, async (req, res) => 
 		}
 
 		const productId = uuidv4();
-		const columns = ['_id', 'product_name', 'product_desc', 'product_price', 'product_count', 'categoryid', 'userid', 'created_at', 'updated_at'];
-		const values = [productId, product_name, product_desc, product_price, product_count, categoryid, userid, new Date(), new Date()];
+		const columns = ['_id', 'product_name', 'product_image', 'product_desc', 'product_price', 'product_count', 'categoryid', 'userid', 'created_at', 'updated_at'];
+		const values = [productId, product_name, imageUrls, product_desc, product_price, product_count, categoryid, userid, new Date(), new Date()];
 		const result = await create('products', columns, values, res);
 
 		return res.status(201).json({ statusCode: 201, message: '성공적으로 product를 생성했습니다.', data: result.rows });
