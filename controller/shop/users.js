@@ -51,14 +51,14 @@ router.post('/create', async (req, res) => {
 // 로그인 - OK
 router.post('/login', async (req, res) => {
     try {
-        const { username, password } = req.body;
+        const { email, password } = req.body;
 
         // 필수 필드 체크
-        if (!username) res.status(400).json({ statusCode: 400, message: '사용자 이름을 입력해주세요' })
+        if (!email) res.status(400).json({ statusCode: 400, message: '사용자 이름을 입력해주세요' })
         if (!password) res.status(400).json({ statusCode: 400, message: '비밀번호를 입력해주세요' })
 
         // 사용자 존재 여부 확인
-        const userExistCheck = await pool.query(`SELECT * FROM users WHERE username = $1`, [username])
+        const userExistCheck = await pool.query(`SELECT * FROM users WHERE email = $1`, [email])
         const user = userExistCheck.rows[0]
 
         if (!user) res.status(400).json({ statusCode: 400, message: '사용자가 존재하지 않습니다.' })
