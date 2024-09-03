@@ -29,7 +29,7 @@ require('dotenv').config();
 
 passport.use(new KakaoStrategy({
     clientID: process.env.KAKAO_REST_API_KEY,
-    callbackURL: '/auth/kakao/callback'
+    callbackURL: process.env.KAKAO_CALLBACK_URL
 }, (accessToken, refreshToken, profile, done) => {
     console.log(profile)
     console.log('여기로 지나가는건가??')
