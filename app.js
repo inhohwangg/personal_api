@@ -193,6 +193,8 @@ app.use(function onError(err, req, res, next) {
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
+}).on('error', (err) => {
+    console.error('Server failed to start :', err)
 });
 
 app.get('/debug-sentry', function mainHandler(req, res) {
