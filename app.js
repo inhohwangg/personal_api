@@ -134,7 +134,8 @@ app.use((req, res, next) => {
 app.get('/auth/kakao', passport.authenticate('kakao'));
 
 app.get('/auth/kakao/callback', passport.authenticate('kakao', {
-    failureRedirect: '/kakao-failed'
+    failureRedirect: '/kakao-failed',
+    session: false
 }), (req, res) => {
     // 로그인 성공 후 홈으로 리디렉션
     req.json({
@@ -142,7 +143,7 @@ app.get('/auth/kakao/callback', passport.authenticate('kakao', {
         token: req.user.token,
         user: req.user.user
     })
-    res.redirect('/kakao');
+    // res.redirect('/kakao');
 });
 
 app.get('/kakao', (req, res) => {
