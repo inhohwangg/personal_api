@@ -7,7 +7,6 @@ const bodyParser = require('body-parser');
 const userRouters = require('./controller/users');
 const todoRouters = require('./controller/todo')
 const pushNotification = require('./controller/push-notification')
-const authRouter = require('./controller/kakao-auth')
 const webhook = require('./controller/webhook-handler')
 const signage = require('./controller/signage')
 const shopUser = require('./controller/shop/users')
