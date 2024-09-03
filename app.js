@@ -25,16 +25,47 @@ const cors = require('cors')
 const passport = require('passport')
 const KakaoStrategy = require('passport-kakao').Strategy
 const session = require('express-session');
+const jwt = require('jsonwebtoken')
+const { create, someGet } = require('./utils/crud')
 require('dotenv').config();
 
 passport.use(new KakaoStrategy({
     clientID: process.env.KAKAO_REST_API_KEY,
     callbackURL: process.env.KAKAO_CALLBACK_URL
-}, (accessToken, refreshToken, profile, done) => {
-    console.log(profile)
-    console.log('여기로 지나가는건가??')
+}, async (accessToken, refreshToken, profile, done) => {
+    try {
+        const kakaoId = profile.id
+        const email = profile._json.kakao_account.email
+        const username = profile._json.properties.nickname
 
-    return done(null, profile);
+        // 사용자가 존재하는지 확인
+        let user = await someGet('users', 'userid', kakaoId)
+
+        if (user.rowCount === 0) {
+            const newUser = {
+                userid: kakaoId.toString(),
+                username: username,
+                email: email,
+                role: '사용자'
+            }
+
+            user = await create('users', ['userid', 'username', 'email', 'role', 'created_at', 'updated_at',], [newUser.userid, newUser.username, newUser.email, newUser.role, new Date(), new Date()])
+            user = user.rows[0]
+        } else {
+            user = user.rows[0]
+        }
+
+        const token = jwt.sign({ id: user.id, userid: user.userid }, process.env.SECRET_KEY, {
+            expiresIn: '90d'
+        })
+
+        return done(null, { user, token })
+
+    } catch (e) {
+        console.error('카카오 로그인 중 오류 발생:', e);
+        return done(e);
+    }
+
 }))
 
 passport.serializeUser((user, done) => {
@@ -101,19 +132,28 @@ app.use((req, res, next) => {
 app.get('/auth/kakao', passport.authenticate('kakao'));
 
 app.get('/auth/kakao/callback', passport.authenticate('kakao', {
-    failureRedirect: '/'
+    failureRedirect: '/kakao-failed'
 }), (req, res) => {
     // 로그인 성공 후 홈으로 리디렉션
-    res.redirect('/');
+    req.json({
+        message: '카카오 로그인 성공',
+        token: req.user.token,
+        user: req.user.user
+    })
+    res.redirect('/kakao');
 });
 
-app.get('/', (req, res) => {
-    res.send('카카오 로그인 예제')
+app.get('/kakao', (req, res) => {
+    res.json({ statusCode: 200, message: '카카오 소셜 로그인 성공' })
 })
 
-// app.get('/', (req, res) => {
-//     res.json({ user: 'http://api.example.com/users?page=2' });
-// });
+app.get('/kakao-failed', (req, res) => {
+    res.json({ statusCode: 400, message: '카카오 소셜 로그인 실패' })
+})
+
+app.get('/', (req, res) => {
+    res.json({ user: 'http://api.example.com/users?page=2' });
+});
 
 app.get('/test', (req, res) => {
     res.json({ user: 'http://api.example.com/users?page=3' });
