@@ -98,16 +98,6 @@ app.use(cors({
 
 app.options('*', cors());
 
-// app.use(session({
-//     secret: '비밀키', // 'secret' 옵션으로 수정
-//     resave: false,
-//     saveUninitialized: false,
-// }))
-
-// passport 초기화 및 세션 사용 설정 추가
-// app.use(passport.initialize());
-// app.use(passport.session());
-
 // 정적 파일 제공
 app.use('/files', express.static('uploads'));
 
@@ -124,7 +114,6 @@ app.use('/api/shop/order_items', order_items);
 app.use('/api/shop/carts', carts);
 app.use('/api/shop/reviews', reviews);
 app.use('/api/shop/inquirys', inquirys);
-// app.use('/api/kakao', authRouter)
 
 app.use((req, res, next) => {
     res.setHeader('x-inho-api', '1.0.0');
@@ -151,7 +140,6 @@ app.get('/auth/kakao/callback', passport.authenticate('kakao', {
             message: e.message
         })
     }
-
     // res.redirect('/kakao');
 });
 
