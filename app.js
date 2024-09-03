@@ -26,6 +26,7 @@ const passport = require('passport')
 const KakaoStrategy = require('passport-kakao').Strategy
 const session = require('express-session');
 const jwt = require('jsonwebtoken')
+const { v4: uuidv4 } = require('uuid')
 const { create, someGet } = require('./utils/crud')
 require('dotenv').config();
 
@@ -43,13 +44,14 @@ passport.use(new KakaoStrategy({
 
         if (user.rowCount === 0) {
             const newUser = {
+                _id: uuidv4(),
                 userid: kakaoId.toString(),
                 username: username,
                 email: email,
                 role: '사용자'
             }
 
-            user = await create('users', ['userid', 'username', 'email', 'role', 'created_at', 'updated_at',], [newUser.userid, newUser.username, newUser.email, newUser.role, new Date(), new Date()])
+            user = await create('users', ['_id', 'userid', 'username', 'email', 'role', 'created_at', 'updated_at',], [newUser._id, newUser.userid, newUser.username, newUser.email, newUser.role, new Date(), new Date()])
             user = user.rows[0]
         } else {
             user = user.rows[0]
