@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
-const KakaoStrategy = require('passport-kakao').Strategy;
-require('dotenv').config({path: '../.env.dev'})
+const KakaoStrategy = requie('passport-kakao').Strategy;
+require('dotenv').config({ path: '../.env.dev' })
 // passport.use(new KakaoStrategy({
 // 	clientID: process.env.KAKAO_CLIENT_ID, // 오타 수정: cilentID -> clientID
 // 	callbackURL: process.env.KAKAO_CALL_BACK_URL,

@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 const userRouters = require('./controller/users');
 const todoRouters = require('./controller/todo')
 const pushNotification = require('./controller/push-notification')
+const authRouter = require('./controller/kakao-auth')
 const webhook = require('./controller/webhook-handler')
 const signage = require('./controller/signage')
 const shopUser = require('./controller/shop/users')
@@ -114,6 +115,7 @@ app.use('/api/shop/order_items', order_items);
 app.use('/api/shop/carts', carts);
 app.use('/api/shop/reviews', reviews);
 app.use('/api/shop/inquirys', inquirys);
+// app.use('/api/kakao', authRouter)
 
 app.use((req, res, next) => {
     res.setHeader('x-inho-api', '1.0.0');
