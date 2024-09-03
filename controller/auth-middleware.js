@@ -1,17 +1,6 @@
 const jwt = require('jsonwebtoken');
-const passport = require('passport');
 require('dotenv').config({ path: '../.env.dev' })
 
-
-// 사용자 인증 후 사용자 정보를 세션에 저장
-passport.serializeUser(function (user, done) {
-	done(null, user);
-});
-
-// 사용자 정보를 세션에서 읽어옴
-passport.deserializeUser(function (obj, done) {
-	done(null, obj);
-});
 
 const authticateToken = (req, res, next) => {
 	const authHeader = req.headers['x-viewtrack-token'];
@@ -36,4 +25,4 @@ const authticateToken = (req, res, next) => {
 	});
 }
 
-module.exports = { authticateToken, passport };
+module.exports = { authticateToken };
