@@ -22,11 +22,37 @@ const { exec } = require('child_process')
 const Sentry = require('@sentry/node')
 const helmet = require('helmet');
 const cors = require('cors')
-
-// const session = require('express-session')
-// const { passport } = require('./controller/auth-middleware')
+const passport = require('passport')
+const KakaoStrategy = require('passport-kakao').Strategy
+const session = require('express-session');
 require('dotenv').config();
 
+passport.use(new KakaoStrategy({
+    clientID: process.env.KAKAO_REST_API_KEY,
+    callbackURL: '/auth/kakao/callback'
+}, (accessToken, refreshToken, profile, done) => {
+    console.log(profile)
+    console.log('여기로 지나가는건가??')
+
+    return done(null, profile);
+}))
+
+passport.serializeUser((user, done) => {
+    done(null, user);
+})
+
+passport.deserializeUser((obj, done) => {
+    done(null, obj);
+})
+
+app.use(session({
+    secret: process.env.SECRET_KEY,
+    resave: false,
+    saveUninitialized: false,
+}));
+
+app.use(passport.initialize())
+app.use(passport.session())
 app.use(bodyParser.urlencoded({ extended: true })); // 'urlcoded'를 'urlencoded'로 수정
 app.use(bodyParser.json());
 app.use(helmet())
@@ -72,9 +98,22 @@ app.use((req, res, next) => {
     next();
 })
 
-app.get('/', (req, res) => {
-    res.json({ user: 'http://api.example.com/users?page=2' });
+app.get('/auth/kakao', passport.authenticate('kakao'));
+
+app.get('/auth/kakao/callback', passport.authenticate('kakao', {
+    failureRedirect: '/'
+}), (req, res) => {
+    // 로그인 성공 후 홈으로 리디렉션
+    res.redirect('/');
 });
+
+app.get('/', (req, res) => {
+    res.send('카카오 로그인 예제')
+})
+
+// app.get('/', (req, res) => {
+//     res.json({ user: 'http://api.example.com/users?page=2' });
+// });
 
 app.get('/test', (req, res) => {
     res.json({ user: 'http://api.example.com/users?page=3' });
