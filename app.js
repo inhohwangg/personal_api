@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 const userRouters = require('./controller/users');
 const todoRouters = require('./controller/todo')
 const pushNotification = require('./controller/push-notification')
+const authRouter = require('./controller/kakao-auth')
 const webhook = require('./controller/webhook-handler')
 const signage = require('./controller/signage')
 const shopUser = require('./controller/shop/users')
@@ -97,6 +98,15 @@ app.use(cors({
 
 app.options('*', cors());
 
+// app.use(session({
+//     secret: '비밀키', // 'secret' 옵션으로 수정
+//     resave: false,
+//     saveUninitialized: false,
+// }))
+
+// passport 초기화 및 세션 사용 설정 추가
+// app.use(passport.initialize());
+// app.use(passport.session());
 
 // 정적 파일 제공
 app.use('/files', express.static('uploads'));
@@ -114,6 +124,7 @@ app.use('/api/shop/order_items', order_items);
 app.use('/api/shop/carts', carts);
 app.use('/api/shop/reviews', reviews);
 app.use('/api/shop/inquirys', inquirys);
+// app.use('/api/kakao', authRouter)
 
 app.use((req, res, next) => {
     res.setHeader('x-inho-api', '1.0.0');
@@ -133,6 +144,7 @@ app.get('/auth/kakao/callback', passport.authenticate('kakao', {
             token: req.user.token,
             user: req.user.user
         })
+
     } catch (e) {
         console.log('카카오 로그인 응답 처리 중 오류 발생 :', e)
         res.status(500).json({
@@ -193,8 +205,6 @@ app.use(function onError(err, req, res, next) {
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
-}).on('error', (err) => {
-    console.error('Server failed to start :', err)
 });
 
 app.get('/debug-sentry', function mainHandler(req, res) {

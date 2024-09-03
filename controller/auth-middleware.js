@@ -1,6 +1,25 @@
 const jwt = require('jsonwebtoken');
+const passport = require('passport');
+const KakaoStrategy = require('passport-kakao').Strategy;
 require('dotenv').config({ path: '../.env.dev' })
+// passport.use(new KakaoStrategy({
+// 	clientID: process.env.KAKAO_CLIENT_ID, // 오타 수정: cilentID -> clientID
+// 	callbackURL: process.env.KAKAO_CALL_BACK_URL,
+// },
+// 	function (accessToken, refreshToken, profile, done) {
+// 		return done(null, profile)
+// 	}
+// ));
 
+// 사용자 인증 후 사용자 정보를 세션에 저장
+passport.serializeUser(function (user, done) {
+	done(null, user);
+});
+
+// 사용자 정보를 세션에서 읽어옴
+passport.deserializeUser(function (obj, done) {
+	done(null, obj);
+});
 
 const authticateToken = (req, res, next) => {
 	const authHeader = req.headers['x-viewtrack-token'];
@@ -25,4 +44,4 @@ const authticateToken = (req, res, next) => {
 	});
 }
 
-module.exports = { authticateToken };
+module.exports = { authticateToken, passport };
