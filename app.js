@@ -137,12 +137,21 @@ app.get('/auth/kakao/callback', passport.authenticate('kakao', {
     failureRedirect: '/kakao-failed',
     session: false
 }), (req, res) => {
-    // 로그인 성공 후 홈으로 리디렉션
-    res.json({
-        message: '카카오 로그인 성공',
-        token: req.user.token,
-        user: req.user.user
-    })
+    try {
+        if (!req.user || !req.user.token) throw Error('토큰 생성에 실패했습니다.')
+        res.json({
+            message: '카카오 로그인 성공',
+            token: req.user.token,
+            user: req.user.user
+        })
+    } catch (e) {
+        console.log('카카오 로그인 응답 처리 중 오류 발생 :', e)
+        res.status(500).json({
+            statusCode: 500,
+            message: e.message
+        })
+    }
+
     // res.redirect('/kakao');
 });
 
