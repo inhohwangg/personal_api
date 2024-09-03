@@ -138,7 +138,7 @@ app.get('/auth/kakao/callback', passport.authenticate('kakao', {
     session: false
 }), (req, res) => {
     // 로그인 성공 후 홈으로 리디렉션
-    req.json({
+    res.json({
         message: '카카오 로그인 성공',
         token: req.user.token,
         user: req.user.user
