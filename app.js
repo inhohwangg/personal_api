@@ -30,54 +30,6 @@ const { v4: uuidv4 } = require('uuid')
 const { create, someGet } = require('./utils/crud')
 require('dotenv').config();
 
-passport.use(new KakaoStrategy({
-    clientID: process.env.KAKAO_REST_API_KEY,
-    callbackURL: process.env.KAKAO_CALLBACK_URL
-}, async (accessToken, refreshToken, profile, done) => {
-    try {
-        const kakaoId = profile.id
-        const email = profile._json.kakao_account.email
-        const username = profile._json.properties.nickname
-
-        // 사용자가 존재하는지 확인
-        let user = await someGet('users', 'userid', kakaoId)
-
-        if (user.rowCount === 0) {
-            const newUser = {
-                _id: uuidv4(),
-                userid: kakaoId.toString(),
-                username: username,
-                email: email,
-                role: '사용자'
-            }
-
-            user = await create('users', ['_id', 'userid', 'username', 'email', 'role', 'created_at', 'updated_at',], [newUser._id, newUser.userid, newUser.username, newUser.email, newUser.role, new Date(), new Date()])
-            user = user.rows[0]
-        } else {
-            user = user.rows[0]
-        }
-
-        const token = jwt.sign({ id: user.id, userid: user.userid }, process.env.SECRET_KEY, {
-            expiresIn: '90d'
-        })
-
-        return done(null, { user, token })
-
-    } catch (e) {
-        console.error('카카오 로그인 중 오류 발생:', e);
-        return done(e);
-    }
-
-}))
-
-passport.serializeUser((user, done) => {
-    done(null, user);
-})
-
-passport.deserializeUser((obj, done) => {
-    done(null, obj);
-})
-
 app.use(session({
     secret: process.env.SECRET_KEY,
     resave: false,
@@ -98,16 +50,6 @@ app.use(cors({
 
 app.options('*', cors());
 
-// app.use(session({
-//     secret: '비밀키', // 'secret' 옵션으로 수정
-//     resave: false,
-//     saveUninitialized: false,
-// }))
-
-// passport 초기화 및 세션 사용 설정 추가
-// app.use(passport.initialize());
-// app.use(passport.session());
-
 // 정적 파일 제공
 app.use('/files', express.static('uploads'));
 
@@ -124,45 +66,16 @@ app.use('/api/shop/order_items', order_items);
 app.use('/api/shop/carts', carts);
 app.use('/api/shop/reviews', reviews);
 app.use('/api/shop/inquirys', inquirys);
-// app.use('/api/kakao', authRouter)
+app.use(authRouter)
 
 app.use((req, res, next) => {
     res.setHeader('x-inho-api', '1.0.0');
     next();
 })
 
-app.get('/auth/kakao', passport.authenticate('kakao'));
-
-app.get('/auth/kakao/callback', passport.authenticate('kakao', {
-    failureRedirect: '/kakao-failed',
-    session: false
-}), (req, res) => {
-    try {
-        if (!req.user || !req.user.token) throw Error('토큰 생성에 실패했습니다.')
-        res.json({
-            message: '카카오 로그인 성공',
-            token: req.user.token,
-            user: req.user.user
-        })
-
-    } catch (e) {
-        console.log('카카오 로그인 응답 처리 중 오류 발생 :', e)
-        res.status(500).json({
-            statusCode: 500,
-            message: e.message
-        })
-    }
-
-    // res.redirect('/kakao');
-});
-
-app.get('/kakao', (req, res) => {
-    res.json({ statusCode: 200, message: '카카오 소셜 로그인 성공' })
-})
-
 app.get('/kakao-failed', (req, res) => {
-    res.json({ statusCode: 400, message: '카카오 소셜 로그인 실패' })
-})
+    res.json({ statusCode: 400, message: '카카오 소셜 로그인 실패' });
+});
 
 app.get('/', (req, res) => {
     res.json({ user: 'http://api.example.com/users?page=2' });
