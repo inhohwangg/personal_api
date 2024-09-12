@@ -102,6 +102,22 @@ router.get('/:_id', authticateToken, async (req, res) => {
     }
 })
 
+// email 중복 검사
+router.get('/email/check', authticateToken, async (req, res) => {
+    try {
+        const { email } = req.query;
+        const result = await fullGet('users', res);
+
+        for (let i = 0; i < result.rows.length; i++) {
+            if (result.rows[i].email === email) return res.status(409).json({statusCode: 409,message: '중복된 이메일입니다.',content: '이메일을 다시 확인해주세요.'});
+        }
+        return res.status(200).json({statusCode: 200,message: '사용 가능한 이메일입니다.'});
+    } catch (e) {
+        console.log('사용자 조회 실패', e);
+        return res.status(500).json({statusCode: 500,message: '서버 에러임',content: '관리자에게 문의하세요'});
+    }
+});
+
 // 사용자 이메일 정보 수정 - OK
 router.put('/email/:_id', authticateToken, async (req, res) => {
     try {
