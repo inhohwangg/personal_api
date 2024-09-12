@@ -103,7 +103,7 @@ router.get('/:_id', authticateToken, async (req, res) => {
 })
 
 // email 중복 검사
-router.get('/email/check', authticateToken, async (req, res) => {
+router.get('/email/check',  async (req, res) => {
     try {
         const { email } = req.query;
         const result = await fullGet('users', res);
@@ -119,7 +119,7 @@ router.get('/email/check', authticateToken, async (req, res) => {
 });
 
 // 사용자 이메일 정보 수정 - OK
-router.put('/email/:_id', async (req, res) => {
+router.put('/email/:_id', authticateToken, async (req, res) => {
     try {
         const { _id } = req.params
         const { email } = req.body;
