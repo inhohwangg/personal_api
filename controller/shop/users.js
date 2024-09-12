@@ -109,7 +109,7 @@ router.get('/email/check', authticateToken, async (req, res) => {
         const result = await fullGet('users', res);
 
         for (let i = 0; i < result.rows.length; i++) {
-            if (result.rows[i].email === email) return res.status(409).json({statusCode: 409,message: '중복된 이메일입니다.',content: '이메일을 다시 확인해주세요.'});
+            if (result.rows[i].email === email) return res.status(400).json({statusCode: 400,message: '중복된 이메일입니다.',content: '이메일을 다시 확인해주세요.'});
         }
         return res.status(200).json({statusCode: 200,message: '사용 가능한 이메일입니다.'});
     } catch (e) {
@@ -119,7 +119,7 @@ router.get('/email/check', authticateToken, async (req, res) => {
 });
 
 // 사용자 이메일 정보 수정 - OK
-router.put('/email/:_id', authticateToken, async (req, res) => {
+router.put('/email/:_id', async (req, res) => {
     try {
         const { _id } = req.params
         const { email } = req.body;
