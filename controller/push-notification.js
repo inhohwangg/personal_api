@@ -8,6 +8,7 @@ const { v4: uuidv4 } = require('uuid')
 const { google } = require('googleapis')
 const path = require('path')
 const axios = require('axios');
+require('dotenv').config();
 
 app.use(bodyParser.json())
 
@@ -15,6 +16,7 @@ const serviceAccount = require(path.join(__dirname, 'serviceAccountKey.json'));
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
+    projectId: process.env.PROJECTID
 });
 
 app.use(bodyParser.json());
@@ -101,6 +103,8 @@ router.post('/send-notification', async (req, res) => {
             tokens: tokens,
         };
 
+        console.log(message)
+
         admin.messaging().sendMulticast(message)
             .then((response) => {
                 console.log(response);
@@ -113,7 +117,7 @@ router.post('/send-notification', async (req, res) => {
                         }
                     });
                 }
-                
+
                 if (response.successCount > 0) {
                     console.log(`Successfully sent message: ${response.successCount} messages sent`);
                     res.status(200).send('Push notification sent successfully');
