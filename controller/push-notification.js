@@ -104,8 +104,10 @@ router.post('/send-notification', async (req, res) => {
         admin.messaging().sendMulticast(message)
             .then((response) => {
                 if (response.successCount > 0) {
+                    console.log(`Successfully sent message: ${response.successCount} messages sent`);
                     res.status(200).send('Push notification sent successfully');
                 } else {
+                    console.error('Failed to send any messages:', response);
                     res.status(500).send('Failed to send push notification');
                 }
             })
