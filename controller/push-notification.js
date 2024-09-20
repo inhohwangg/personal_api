@@ -103,7 +103,17 @@ router.post('/send-notification', async (req, res) => {
 
         admin.messaging().sendMulticast(message)
             .then((response) => {
-                console.log(response[0])
+                console.log(response);
+
+                // 에러 상세 내용 출력
+                if (response.failureCount > 0) {
+                    response.responses.forEach((resp, idx) => {
+                        if (!resp.success) {
+                            console.error(`Failed to send to token ${tokens[idx]}:`, resp.error);
+                        }
+                    });
+                }
+                
                 if (response.successCount > 0) {
                     console.log(`Successfully sent message: ${response.successCount} messages sent`);
                     res.status(200).send('Push notification sent successfully');
